@@ -1,6 +1,8 @@
 """Sample API Client."""
 from __future__ import annotations
 
+from .const import LOGGER
+
 import asyncio
 import socket
 
@@ -41,9 +43,18 @@ class ARSOApiClient:
 
     async def async_get_data(self) -> any:
         """Get data from the API."""
-        return await self._api_wrapper(
-            method="get", url="https://jsonplaceholder.typicode.com/posts/1"
-        )
+        meteo_data_xml = await self._api_wrapper(method="get", url="https://meteo.arso.gov.si/uploads/probase/www/observ/surface/text/sl/observationAms_si_latest.xml")
+        root = ET.fromstring(meteo_data_xml)
+        for met_data in root.findall('metData'):
+            domain_title = met_data.find('domain_title').text
+            LOGGER.debug(domain_title)
+        return domain_title
+
+    #async def async_get_data(self) -> any:
+    #    """Get data from the API."""
+    #    return await self._api_wrapper(
+    #        method="get", url="https://jsonplaceholder.typicode.com/posts/1"
+    #    )
 
     async def async_set_title(self, value: str) -> any:
         """Get data from the API."""
@@ -75,7 +86,8 @@ class ARSOApiClient:
                         "Invalid credentials",
                     )
                 response.raise_for_status()
-                return await response.json()
+                #return await response.json()
+                return await response.text()
 
         except asyncio.TimeoutError as exception:
             raise ARSOApiClientCommunicationError(

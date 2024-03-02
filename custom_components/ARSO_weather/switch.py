@@ -5,7 +5,7 @@ from homeassistant.components.switch import SwitchEntity, SwitchEntityDescriptio
 
 from .const import DOMAIN
 from .coordinator import ARSODataUpdateCoordinator
-from .entity import IntegrationBlueprintEntity
+from .entity import ARSOEntity
 
 ENTITY_DESCRIPTIONS = (
     SwitchEntityDescription(
@@ -20,7 +20,7 @@ async def async_setup_entry(hass, entry, async_add_devices):
     """Set up the sensor platform."""
     coordinator = hass.data[DOMAIN][entry.entry_id]
     async_add_devices(
-        IntegrationBlueprintSwitch(
+        ARSOSwitch(
             coordinator=coordinator,
             entity_description=entity_description,
         )
@@ -28,7 +28,7 @@ async def async_setup_entry(hass, entry, async_add_devices):
     )
 
 
-class IntegrationBlueprintSwitch(IntegrationBlueprintEntity, SwitchEntity):
+class ARSOSwitch(ARSOEntity, SwitchEntity):
     """ARSO_weather switch class."""
 
     def __init__(
@@ -43,7 +43,8 @@ class IntegrationBlueprintSwitch(IntegrationBlueprintEntity, SwitchEntity):
     @property
     def is_on(self) -> bool:
         """Return true if the switch is on."""
-        return self.coordinator.data.get("title", "") == "foo"
+        #return self.coordinator.data.get("title", "") == "foo"
+        return self.coordinator.data == "foo"
 
     async def async_turn_on(self, **_: any) -> None:
         """Turn on the switch."""
@@ -52,5 +53,5 @@ class IntegrationBlueprintSwitch(IntegrationBlueprintEntity, SwitchEntity):
 
     async def async_turn_off(self, **_: any) -> None:
         """Turn off the switch."""
-        await self.coordinator.api.async_set_title("foo")
+        await self.coordinator.client.async_set_title("foo")
         await self.coordinator.async_request_refresh()
