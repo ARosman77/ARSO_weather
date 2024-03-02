@@ -7,6 +7,7 @@ import socket
 import aiohttp
 import async_timeout
 
+import xml.etree.ElementTree as ET
 
 class ARSOApiClientError(Exception):
     """Exception to indicate a general API error."""

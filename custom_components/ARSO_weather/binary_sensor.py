@@ -8,7 +8,7 @@ from homeassistant.components.binary_sensor import (
 )
 
 from .const import DOMAIN
-from .coordinator import BlueprintDataUpdateCoordinator
+from .coordinator import ARSODataUpdateCoordinator
 from .entity import ARSOEntity
 
 ENTITY_DESCRIPTIONS = (
@@ -37,7 +37,7 @@ class ARSOBinarySensor(ARSOEntity, BinarySensorEntity):
 
     def __init__(
         self,
-        coordinator: BlueprintDataUpdateCoordinator,
+        coordinator: ARSODataUpdateCoordinator,
         entity_description: BinarySensorEntityDescription,
     ) -> None:
         """Initialize the binary_sensor class."""
