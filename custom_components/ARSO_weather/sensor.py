@@ -1,15 +1,15 @@
-"""Sensor platform for ARSO_weather."""
+"""Sensor platform for integration_blueprint."""
 from __future__ import annotations
 
 from homeassistant.components.sensor import SensorEntity, SensorEntityDescription
 
 from .const import DOMAIN
 from .coordinator import BlueprintDataUpdateCoordinator
-from .entity import ARSOEntity
+from .entity import IntegrationBlueprintEntity
 
 ENTITY_DESCRIPTIONS = (
     SensorEntityDescription(
-        key="ARSO_weather",
+        key="integration_blueprint",
         name="Integration Sensor",
         icon="mdi:format-quote-close",
     ),
@@ -20,7 +20,7 @@ async def async_setup_entry(hass, entry, async_add_devices):
     """Set up the sensor platform."""
     coordinator = hass.data[DOMAIN][entry.entry_id]
     async_add_devices(
-        ARSOSensor(
+        IntegrationBlueprintSensor(
             coordinator=coordinator,
             entity_description=entity_description,
         )
@@ -28,8 +28,8 @@ async def async_setup_entry(hass, entry, async_add_devices):
     )
 
 
-class ARSOSensor(ARSOEntity, SensorEntity):
-    """ARSO_weather Sensor class."""
+class IntegrationBlueprintSensor(IntegrationBlueprintEntity, SensorEntity):
+    """integration_blueprint Sensor class."""
 
     def __init__(
         self,

@@ -1,4 +1,4 @@
-"""Binary sensor platform for ARSO_weather."""
+"""Binary sensor platform for integration_blueprint."""
 from __future__ import annotations
 
 from homeassistant.components.binary_sensor import (
@@ -9,11 +9,11 @@ from homeassistant.components.binary_sensor import (
 
 from .const import DOMAIN
 from .coordinator import BlueprintDataUpdateCoordinator
-from .entity import ARSOEntity
+from .entity import IntegrationBlueprintEntity
 
 ENTITY_DESCRIPTIONS = (
     BinarySensorEntityDescription(
-        key="ARSO_weather",
+        key="integration_blueprint",
         name="Integration Blueprint Binary Sensor",
         device_class=BinarySensorDeviceClass.CONNECTIVITY,
     ),
@@ -24,7 +24,7 @@ async def async_setup_entry(hass, entry, async_add_devices):
     """Set up the binary_sensor platform."""
     coordinator = hass.data[DOMAIN][entry.entry_id]
     async_add_devices(
-        ARSOBinarySensor(
+        IntegrationBlueprintBinarySensor(
             coordinator=coordinator,
             entity_description=entity_description,
         )
@@ -32,8 +32,8 @@ async def async_setup_entry(hass, entry, async_add_devices):
     )
 
 
-class ARSOBinarySensor(ARSOEntity, BinarySensorEntity):
-    """ARSO_weather binary_sensor class."""
+class IntegrationBlueprintBinarySensor(IntegrationBlueprintEntity, BinarySensorEntity):
+    """integration_blueprint binary_sensor class."""
 
     def __init__(
         self,

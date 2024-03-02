@@ -1,4 +1,4 @@
-"""DataUpdateCoordinator for ARSO_weather."""
+"""DataUpdateCoordinator for integration_blueprint."""
 from __future__ import annotations
 
 from datetime import timedelta
@@ -12,9 +12,9 @@ from homeassistant.helpers.update_coordinator import (
 from homeassistant.exceptions import ConfigEntryAuthFailed
 
 from .api import (
-    ARSOApiClient,
-    ARSOApiClientAuthenticationError,
-    ARSOApiClientError,
+    IntegrationBlueprintApiClient,
+    IntegrationBlueprintApiClientAuthenticationError,
+    IntegrationBlueprintApiClientError,
 )
 from .const import DOMAIN, LOGGER
 
@@ -28,7 +28,7 @@ class BlueprintDataUpdateCoordinator(DataUpdateCoordinator):
     def __init__(
         self,
         hass: HomeAssistant,
-        client: ARSOApiClient,
+        client: IntegrationBlueprintApiClient,
     ) -> None:
         """Initialize."""
         self.client = client
@@ -43,7 +43,7 @@ class BlueprintDataUpdateCoordinator(DataUpdateCoordinator):
         """Update data via library."""
         try:
             return await self.client.async_get_data()
-        except ARSOApiClientAuthenticationError as exception:
+        except IntegrationBlueprintApiClientAuthenticationError as exception:
             raise ConfigEntryAuthFailed(exception) from exception
-        except ARSOApiClientError as exception:
+        except IntegrationBlueprintApiClientError as exception:
             raise UpdateFailed(exception) from exception

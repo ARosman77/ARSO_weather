@@ -8,10 +8,10 @@ from homeassistant.helpers import selector
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
 
 from .api import (
-    ARSOApiClient,
-    ARSOApiClientAuthenticationError,
-    ARSOApiClientCommunicationError,
-    ARSOApiClientError,
+    IntegrationBlueprintApiClient,
+    IntegrationBlueprintApiClientAuthenticationError,
+    IntegrationBlueprintApiClientCommunicationError,
+    IntegrationBlueprintApiClientError,
 )
 from .const import DOMAIN, LOGGER
 
@@ -33,13 +33,13 @@ class BlueprintFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                     username=user_input[CONF_USERNAME],
                     password=user_input[CONF_PASSWORD],
                 )
-            except ARSOApiClientAuthenticationError as exception:
+            except IntegrationBlueprintApiClientAuthenticationError as exception:
                 LOGGER.warning(exception)
                 _errors["base"] = "auth"
-            except ARSOApiClientCommunicationError as exception:
+            except IntegrationBlueprintApiClientCommunicationError as exception:
                 LOGGER.error(exception)
                 _errors["base"] = "connection"
-            except ARSOApiClientError as exception:
+            except IntegrationBlueprintApiClientError as exception:
                 LOGGER.exception(exception)
                 _errors["base"] = "unknown"
             else:
@@ -72,7 +72,7 @@ class BlueprintFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def _test_credentials(self, username: str, password: str) -> None:
         """Validate credentials."""
-        client = ARSOApiClient(
+        client = IntegrationBlueprintApiClient(
             username=username,
             password=password,
             session=async_create_clientsession(self.hass),

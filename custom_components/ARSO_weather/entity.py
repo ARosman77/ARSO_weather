@@ -8,7 +8,7 @@ from .const import ATTRIBUTION, DOMAIN, NAME, VERSION
 from .coordinator import BlueprintDataUpdateCoordinator
 
 
-class ARSOEntity(CoordinatorEntity):
+class IntegrationBlueprintEntity(CoordinatorEntity):
     """BlueprintEntity class."""
 
     _attr_attribution = ATTRIBUTION

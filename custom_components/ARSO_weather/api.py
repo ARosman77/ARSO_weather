@@ -8,23 +8,23 @@ import aiohttp
 import async_timeout
 
 
-class ARSOApiClientError(Exception):
+class IntegrationBlueprintApiClientError(Exception):
     """Exception to indicate a general API error."""
 
 
-class ARSOApiClientCommunicationError(
-    ARSOApiClientError
+class IntegrationBlueprintApiClientCommunicationError(
+    IntegrationBlueprintApiClientError
 ):
     """Exception to indicate a communication error."""
 
 
-class ARSOApiClientAuthenticationError(
-    ARSOApiClientError
+class IntegrationBlueprintApiClientAuthenticationError(
+    IntegrationBlueprintApiClientError
 ):
     """Exception to indicate an authentication error."""
 
 
-class ARSOApiClient:
+class IntegrationBlueprintApiClient:
     """Sample API Client."""
 
     def __init__(
@@ -70,21 +70,21 @@ class ARSOApiClient:
                     json=data,
                 )
                 if response.status in (401, 403):
-                    raise ARSOApiClientAuthenticationError(
+                    raise IntegrationBlueprintApiClientAuthenticationError(
                         "Invalid credentials",
                     )
                 response.raise_for_status()
                 return await response.json()
 
         except asyncio.TimeoutError as exception:
-            raise ARSOApiClientCommunicationError(
+            raise IntegrationBlueprintApiClientCommunicationError(
                 "Timeout error fetching information",
             ) from exception
         except (aiohttp.ClientError, socket.gaierror) as exception:
-            raise ARSOApiClientCommunicationError(
+            raise IntegrationBlueprintApiClientCommunicationError(
                 "Error fetching information",
             ) from exception
         except Exception as exception:  # pylint: disable=broad-except
-            raise ARSOApiClientError(
+            raise IntegrationBlueprintApiClientError(
                 "Something really wrong happened!"
             ) from exception
