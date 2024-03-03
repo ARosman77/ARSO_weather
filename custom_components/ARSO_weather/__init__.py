@@ -11,7 +11,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import ARSOApiClient
-from .const import DOMAIN
+from .const import DOMAIN, CONF_LOCATION
 from .coordinator import ARSODataUpdateCoordinator
 
 PLATFORMS: list[Platform] = [
@@ -28,8 +28,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data[DOMAIN][entry.entry_id] = coordinator = ARSODataUpdateCoordinator(
         hass=hass,
         client=ARSOApiClient(
-            username=entry.data[CONF_USERNAME],
-            password=entry.data[CONF_PASSWORD],
+            location=entry.data[CONF_LOCATION],
             session=async_get_clientsession(hass),
         ),
     )

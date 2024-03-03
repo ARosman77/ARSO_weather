@@ -32,13 +32,11 @@ class ARSOApiClient:
 
     def __init__(
         self,
-        username: str,
-        password: str,
+        location: str,
         session: aiohttp.ClientSession,
     ) -> None:
         """Sample API Client."""
-        self._username = username
-        self._password = password
+        self._location = location
         self._session = session
 
     async def async_get_data(self) -> any:
@@ -55,20 +53,18 @@ class ARSOApiClient:
         LOGGER.debug(str(meteo_data_all))
         return meteo_data_all
 
-    #async def async_get_data(self) -> any:
-    #    """Get data from the API."""
-    #    return await self._api_wrapper(
-    #        method="get", url="https://jsonplaceholder.typicode.com/posts/1"
-    #    )
-
     async def async_set_title(self, value: str) -> any:
         """Get data from the API."""
-        return await self._api_wrapper(
-            method="patch",
-            url="https://jsonplaceholder.typicode.com/posts/1",
-            data={"title": value},
-            headers={"Content-type": "application/json; charset=UTF-8"},
-        )
+        return await self._location
+
+#    async def async_set_title(self, value: str) -> any:
+#        """Get data from the API."""
+#        return await self._api_wrapper(
+#            method="patch",
+#            url="https://jsonplaceholder.typicode.com/posts/1",
+#            data={"title": value},
+#            headers={"Content-type": "application/json; charset=UTF-8"},
+#        )
 
     async def _api_wrapper(
         self,
@@ -91,7 +87,6 @@ class ARSOApiClient:
                         "Invalid credentials",
                     )
                 response.raise_for_status()
-                #return await response.json()
                 return await response.text()
 
         except asyncio.TimeoutError as exception:
