@@ -13,10 +13,12 @@ from .api import (
     ARSOApiClientCommunicationError,
     ARSOApiClientError,
 )
-from .const import DOMAIN, LOGGER
+from .const import DOMAIN, COORDINATOR, LOGGER, DOMAIN_LOCATION
+from .coordinator import ARSODataUpdateCoordinator
 
 
-class BlueprintFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
+
+class ARSOFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     """Config flow for Blueprint."""
 
     VERSION = 1
@@ -27,6 +29,15 @@ class BlueprintFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     ) -> config_entries.FlowResult:
         """Handle a flow initialized by the user."""
         _errors = {}
+
+        """Get list of locations to choose from."""
+        _entry_id = self.hass.config_entries.async_entries(DOMAIN)[0].entry_id
+        _coordinator = self.hass.data[DOMAIN][_entry_id]
+        list_of_locations = []
+        for meteo_data_location in _coordinator.data:
+            list_of_locations.append( meteo_data_location["domain_title"])
+
+        """Present settings UI."""
         if user_input is not None:
             try:
                 await self._test_credentials(
@@ -63,6 +74,11 @@ class BlueprintFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                     vol.Required(CONF_PASSWORD): selector.TextSelector(
                         selector.TextSelectorConfig(
                             type=selector.TextSelectorType.PASSWORD
+                        ),
+                    ),
+                    vol.Required(DOMAIN_LOCATION): selector.SelectSelector(
+                        selector.SelectSelectorConfig(
+                            options=list_of_locations,
                         ),
                     ),
                 }
