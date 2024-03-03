@@ -30,14 +30,7 @@ class ARSOFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         _errors = {}
 
         """Get list of locations to choose from."""
-        #LOGGER.debug(str(self.hass.config_entries.async_entries(DOMAIN)))
-        #_entry_id = self.hass.config_entries.async_entries(DOMAIN)[0].entry_id
-        #_coordinator = self.hass.data[DOMAIN][_entry_id]
-        #list_of_locations = []
-        #for meteo_data_location in _coordinator.data:
-        #    list_of_locations.append( meteo_data_location["domain_title"])
         list_of_locations = await self._return_locations(location='')
-        LOGGER.debug(str(list_of_locations))
 
         """Present settings UI."""
         if user_input is not None:

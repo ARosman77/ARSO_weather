@@ -3,9 +3,9 @@ from logging import Logger, getLogger
 
 LOGGER: Logger = getLogger(__package__)
 
-NAME = "Integration blueprint"
+NAME = "ARSO Weather"
 DOMAIN = "ARSO_weather"
-VERSION = "0.0.0"
-ATTRIBUTION = "Data provided by http://jsonplaceholder.typicode.com/"
+VERSION = "0.0.1"
+ATTRIBUTION = "Data provided by ARSO."
 
 CONF_LOCATION = "meteo_location"

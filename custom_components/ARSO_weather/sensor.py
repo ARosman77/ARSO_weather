@@ -1,32 +1,48 @@
 """Sensor platform for ARSO_weather."""
 from __future__ import annotations
 
-from homeassistant.components.sensor import SensorEntity, SensorEntityDescription
+from homeassistant.components.sensor import SensorEntity, SensorEntityDescription, SensorDeviceClass
+from homeassistant.const import UnitOfTemperature
 
-from .const import DOMAIN
+
+from .const import DOMAIN, CONF_LOCATION
 from .coordinator import ARSODataUpdateCoordinator
 from .entity import ARSOEntity
 
 ENTITY_DESCRIPTIONS = (
     SensorEntityDescription(
         key="ARSO_weather",
-        name="Integration Sensor",
-        icon="mdi:format-quote-close",
+        name="ARSO Sensor",
+        icon="mdi:thermometer",
+        device_class= SensorDeviceClass.TEMPERATURE,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
     ),
 )
-
 
 async def async_setup_entry(hass, entry, async_add_devices):
     """Set up the sensor platform."""
     coordinator = hass.data[DOMAIN][entry.entry_id]
-    async_add_devices(
-        ARSOSensor(
-            coordinator=coordinator,
-            entity_description=entity_description,
+    devices = []
+    for entity_description in ENTITY_DESCRIPTIONS:
+        entity_description.name = "ARSO Sensor for " + entry.data[CONF_LOCATION]
+        devices.append(
+            ARSOSensor(
+                coordinator=coordinator,
+                entity_description=entity_description,
+            )
         )
-        for entity_description in ENTITY_DESCRIPTIONS
-    )
+    async_add_devices(devices)
 
+#async def async_setup_entry(hass, entry, async_add_devices):
+#    """Set up the sensor platform."""
+#    coordinator = hass.data[DOMAIN][entry.entry_id]
+#    async_add_devices(
+#        ARSOSensor(
+#            coordinator=coordinator,
+#            entity_description=entity_description,
+#        )
+#        for entity_description in ENTITY_DESCRIPTIONS
+#    )
 
 class ARSOSensor(ARSOEntity, SensorEntity):
     """ARSO_weather Sensor class."""

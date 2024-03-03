@@ -41,6 +41,7 @@ class ARSOApiClient:
 
     async def async_get_data(self) -> any:
         """Get data from the API."""
+        LOGGER.debug("API Location:"+str(self._location))
         meteo_data_all = []
         meteo_data_xml = await self._api_wrapper(method="get", url="https://meteo.arso.gov.si/uploads/probase/www/observ/surface/text/sl/observationAms_si_latest.xml")
         root = ET.fromstring(meteo_data_xml)
@@ -50,7 +51,6 @@ class ARSOApiClient:
             for data in data_selection:
                 meteo_data_location[data] = metData.find(data).text
             meteo_data_all.append(meteo_data_location)
-        LOGGER.debug(str(meteo_data_all))
         return meteo_data_all
 
     async def async_set_title(self, value: str) -> any:
