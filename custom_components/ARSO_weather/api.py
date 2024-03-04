@@ -45,7 +45,7 @@ class ARSOApiClient:
         meteo_data_all = []
         meteo_data_xml = await self._api_wrapper(method="get", url="https://meteo.arso.gov.si/uploads/probase/www/observ/surface/text/sl/observationAms_si_latest.xml")
         root = ET.fromstring(meteo_data_xml)
-        data_selection = ['domain_title','t','rh']
+        data_selection = ['domain_title','domain_longTitle','domain_lat','domain_lon','domain_altitude','t','rh','msl']
         for metData in root.findall('metData'):
             meteo_data_location = {}
             for data in data_selection:
@@ -56,15 +56,6 @@ class ARSOApiClient:
     async def async_set_title(self, value: str) -> any:
         """Get data from the API."""
         return await self._location
-
-#    async def async_set_title(self, value: str) -> any:
-#        """Get data from the API."""
-#        return await self._api_wrapper(
-#            method="patch",
-#            url="https://jsonplaceholder.typicode.com/posts/1",
-#            data={"title": value},
-#            headers={"Content-type": "application/json; charset=UTF-8"},
-#        )
 
     async def _api_wrapper(
         self,
