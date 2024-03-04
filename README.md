@@ -5,10 +5,6 @@
 [![License][license-shield]](LICENSE)
 
 ![Project Maintenance][maintenance-shield]
-[![BuyMeCoffee][buymecoffeebadge]][buymecoffee]
-
-[![Discord][discord-shield]][discord]
-[![Community Forum][forum-shield]][forum]
 
 _Integration to integrate with [ARSO_weather][ARSO_weather]._
 
@@ -39,16 +35,10 @@ If you want to contribute to this please read the [Contribution guidelines](CONT
 ***
 
 [ARSO_weather]: https://github.com/ARosman77/ARSO_weather
-[buymecoffee]: https://www.buymeacoffee.com/ludeeus
-[buymecoffeebadge]: https://img.shields.io/badge/buy%20me%20a%20coffee-donate-yellow.svg?style=for-the-badge
 [commits-shield]: https://img.shields.io/github/commit-activity/y/ARosman77/ARSO_weather.svg?style=for-the-badge
 [commits]: https://github.com/ARosman77/ARSO_weather/commits/main
-[discord]: https://discord.gg/Qa5fW2R
-[discord-shield]: https://img.shields.io/discord/330944238910963714.svg?style=for-the-badge
 [exampleimg]: example.png
-[forum-shield]: https://img.shields.io/badge/community-forum-brightgreen.svg?style=for-the-badge
-[forum]: https://community.home-assistant.io/
 [license-shield]: https://img.shields.io/github/license/ARosman77/ARSO_weather.svg?style=for-the-badge
-[maintenance-shield]: https://img.shields.io/badge/maintainer-Joakim%20Sørensen%20%40ludeeus-blue.svg?style=for-the-badge
+[maintenance-shield]: https://img.shields.io/badge/maintainer-ARosman77%20-blue.svg?style=for-the-badge
 [releases-shield]: https://img.shields.io/github/release/ARosman77/ARSO_weather.svg?style=for-the-badge
 [releases]: https://github.com/ARosman77/ARSO_weather/releases
