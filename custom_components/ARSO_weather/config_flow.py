@@ -13,7 +13,6 @@ from .api import (
     ARSOApiClientError,
 )
 from .const import DOMAIN, LOGGER, CONF_LOCATION
-from .coordinator import ARSODataUpdateCoordinator
 
 
 
