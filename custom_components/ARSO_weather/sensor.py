@@ -89,5 +89,7 @@ class ARSOSensor(ARSOEntity, SensorEntity):
     @property
     def native_value(self) -> str:
         """Return the native value of the sensor."""
-        meteo_data_location = next((item for item in self.coordinator.data if item["domain_title"] == self._location), False)
-        return meteo_data_location[self._data_type]
+        #meteo_data_location = next((item for item in self.coordinator.data if item["domain_title"] == self._location), False)
+        #return meteo_data_location[self._data_type]
+        LOGGER.debug(self.coordinator.data.current_meteo_data(self._location, self._data_type))
+        return self.coordinator.data.current_meteo_data(self._location, self._data_type)

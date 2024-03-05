@@ -16,6 +16,7 @@ from .coordinator import ARSODataUpdateCoordinator
 
 PLATFORMS: list[Platform] = [
     Platform.SENSOR,
+    #Platform.WEATHER,
 ]
 
 
@@ -26,7 +27,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data[DOMAIN][entry.entry_id] = coordinator = ARSODataUpdateCoordinator(
         hass=hass,
         client=ARSOApiClient(
-            location=entry.data[CONF_LOCATION],
             session=async_get_clientsession(hass),
         ),
     )

@@ -27,31 +27,58 @@ class ARSOApiClientAuthenticationError(
     """Exception to indicate an authentication error."""
 
 
-class ARSOApiClient:
-    """Sample API Client."""
+class ARSOMeteoData:
+    """ Meteo data class """
 
     def __init__(
         self,
-        location: str,
-        session: aiohttp.ClientSession,
+        current_data: str,
+        forecast_data: str,
     ) -> None:
-        """Sample API Client."""
-        self._location = location
-        self._session = session
+        self._current_data = current_data
+        self._forecast_data = forecast_data
 
-    async def async_get_data(self) -> any:
-        """Get data from the API."""
-        LOGGER.debug("API Location:"+str(self._location))
-        meteo_data_all = []
-        meteo_data_xml = await self._api_wrapper(method="get", url="https://meteo.arso.gov.si/uploads/probase/www/observ/surface/text/sl/observationAms_si_latest.xml")
-        root = ET.fromstring(meteo_data_xml)
+        self.meteo_data_all = []
+        root = ET.fromstring(current_data)
         data_selection = ['domain_title','domain_longTitle','domain_lat','domain_lon','domain_altitude','t','rh','msl']
         for metData in root.findall('metData'):
             meteo_data_location = {}
             for data in data_selection:
                 meteo_data_location[data] = metData.find(data).text
-            meteo_data_all.append(meteo_data_location)
-        return meteo_data_all
+            self.meteo_data_all.append(meteo_data_location)
+
+    def current_temperature(self, location: str) -> str:
+        """Return temperature of the location."""
+        return self.current_meteo_data(location,'t')
+
+    def current_humidity(self, location: str) -> str:
+        """Return humidity of the location."""
+        return self.current_meteo_data(location,'rh')
+
+    def current_air_pressure(self, location: str) -> str:
+        """Return air pressure of the location."""
+        return self.current_meteo_data(location,'msl')
+
+    def current_meteo_data(self, location: str, data_type: str) -> str:
+        """Return temperature of the location."""
+        meteo_data_location = next((item for item in self.meteo_data_all if item["domain_title"] == location), False)
+        return meteo_data_location[data_type]
+
+class ARSOApiClient:
+    """Sample API Client."""
+
+    def __init__(
+        self,
+        session: aiohttp.ClientSession,
+    ) -> None:
+        """Sample API Client."""
+        self._session = session
+
+    async def async_get_data(self) -> any:
+        """Get data from the API."""
+        meteo_data_xml = await self._api_wrapper(method="get", url="https://meteo.arso.gov.si/uploads/probase/www/observ/surface/text/sl/observationAms_si_latest.xml")
+        meteo_forecast_xml = await self._api_wrapper(method="get", url="https://meteo.arso.gov.si/uploads/probase/www/fproduct/text/sl/forecast_si_latest.xml")
+        return ARSOMeteoData(meteo_data_xml, meteo_forecast_xml)
 
     async def async_set_title(self, value: str) -> any:
         """Get data from the API."""
