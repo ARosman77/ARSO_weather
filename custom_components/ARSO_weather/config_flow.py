@@ -15,10 +15,8 @@ from .api import (
 )
 from .const import DOMAIN, LOGGER, CONF_LOCATION
 
-
-
 class ARSOFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
-    """Config flow for Blueprint."""
+    """Config flow for ARSO Weather."""
 
     VERSION = 1
 
@@ -29,15 +27,13 @@ class ARSOFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         """Handle a flow initialized by the user."""
         _errors = {}
 
-        """Get list of locations to choose from."""
+        #Get list of locations to choose from.
         list_of_locations = await self._return_locations()
 
-        """Present settings UI."""
+        #Present settings UI.
         if user_input is not None:
             try:
-                await self._test_connecton(
-                    location=user_input[CONF_LOCATION],
-                )
+                await self._test_connecton()
             except ARSOApiClientAuthenticationError as exception:
                 LOGGER.warning(exception)
                 _errors["base"] = "auth"
@@ -67,10 +63,9 @@ class ARSOFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             errors=_errors,
         )
 
-    async def _test_connecton(self, location: str) -> None:
+    async def _test_connecton(self) -> None:
         """Validate connection."""
         client = ARSOApiClient(
-            location=location,
             session=async_create_clientsession(self.hass),
         )
         await client.async_get_data()
@@ -83,10 +78,3 @@ class ARSOFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         meteo_data: ARSOMeteoData
         meteo_data = await client.async_get_data()
         return meteo_data.list_of_locations()
-
-        #meteo_data_all = await client.async_get_data()
-        #list_of_locations = []
-        #for meteo_data_location in meteo_data_all:
-        #    list_of_locations.append(meteo_data_location["domain_title"])
-        #return list_of_locations
-

@@ -1,34 +1,31 @@
 """Sample API Client."""
+
 from __future__ import annotations
 
-from .const import LOGGER
+import xml.etree.ElementTree as ET
 
 import asyncio
 import socket
-
 import aiohttp
 import async_timeout
 
-import xml.etree.ElementTree as ET
+# from .const import LOGGER
+
 
 class ARSOApiClientError(Exception):
     """Exception to indicate a general API error."""
 
 
-class ARSOApiClientCommunicationError(
-    ARSOApiClientError
-):
+class ARSOApiClientCommunicationError(ARSOApiClientError):
     """Exception to indicate a communication error."""
 
 
-class ARSOApiClientAuthenticationError(
-    ARSOApiClientError
-):
+class ARSOApiClientAuthenticationError(ARSOApiClientError):
     """Exception to indicate an authentication error."""
 
 
 class ARSOMeteoData:
-    """ Meteo data class """
+    """Meteo data class"""
 
     def __init__(
         self,
@@ -40,28 +37,40 @@ class ARSOMeteoData:
 
         self.meteo_data_all = []
         root = ET.fromstring(current_data)
-        data_selection = ['domain_title','domain_longTitle','domain_lat','domain_lon','domain_altitude','t','rh','msl']
-        for metData in root.findall('metData'):
+        data_selection = [
+            "domain_title",
+            "domain_longTitle",
+            "domain_lat",
+            "domain_lon",
+            "domain_altitude",
+            "t",
+            "rh",
+            "msl",
+        ]
+        for meteo_parent in root.findall("metData"):
             meteo_data_location = {}
             for data in data_selection:
-                meteo_data_location[data] = metData.find(data).text
+                meteo_data_location[data] = meteo_parent.find(data).text
             self.meteo_data_all.append(meteo_data_location)
 
     def current_temperature(self, location: str) -> str:
         """Return temperature of the location."""
-        return self.current_meteo_data(location,'t')
+        return self.current_meteo_data(location, "t")
 
     def current_humidity(self, location: str) -> str:
         """Return humidity of the location."""
-        return self.current_meteo_data(location,'rh')
+        return self.current_meteo_data(location, "rh")
 
     def current_air_pressure(self, location: str) -> str:
         """Return air pressure of the location."""
-        return self.current_meteo_data(location,'msl')
+        return self.current_meteo_data(location, "msl")
 
     def current_meteo_data(self, location: str, data_type: str) -> str:
         """Return temperature of the location."""
-        meteo_data_location = next((item for item in self.meteo_data_all if item["domain_title"] == location), False)
+        meteo_data_location = next(
+            (item for item in self.meteo_data_all if item["domain_title"] == location),
+            False,
+        )
         return meteo_data_location[data_type]
 
     def list_of_locations(self) -> list:
@@ -70,6 +79,7 @@ class ARSOMeteoData:
         for meteo_data_location in self.meteo_data_all:
             list_of_locations.append(meteo_data_location["domain_title"])
         return list_of_locations
+
 
 class ARSOApiClient:
     """Sample API Client."""
@@ -83,13 +93,16 @@ class ARSOApiClient:
 
     async def async_get_data(self) -> any:
         """Get data from the API."""
-        meteo_data_xml = await self._api_wrapper(method="get", url="https://meteo.arso.gov.si/uploads/probase/www/observ/surface/text/sl/observationAms_si_latest.xml")
-        meteo_forecast_xml = await self._api_wrapper(method="get", url="https://meteo.arso.gov.si/uploads/probase/www/fproduct/text/sl/forecast_si_latest.xml")
+        # pylint: disable=line-too-long
+        meteo_data_xml = await self._api_wrapper(
+            method="get",
+            url="https://meteo.arso.gov.si/uploads/probase/www/observ/surface/text/sl/observationAms_si_latest.xml",
+        )
+        meteo_forecast_xml = await self._api_wrapper(
+            method="get",
+            url="https://meteo.arso.gov.si/uploads/probase/www/fproduct/text/sl/forecast_si_latest.xml",
+        )
         return ARSOMeteoData(meteo_data_xml, meteo_forecast_xml)
-
-    async def async_set_title(self, value: str) -> any:
-        """Get data from the API."""
-        return await self._location
 
     async def _api_wrapper(
         self,
@@ -123,6 +136,4 @@ class ARSOApiClient:
                 "Error fetching information",
             ) from exception
         except Exception as exception:  # pylint: disable=broad-except
-            raise ARSOApiClientError(
-                "Something really wrong happened!"
-            ) from exception
+            raise ARSOApiClientError("Something really wrong happened!") from exception
