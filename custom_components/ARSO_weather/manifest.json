@@ -1,12 +1,12 @@
 {
   "domain": "ARSO_weather",
-  "name": "Integration blueprint",
+  "name": "ARSO weather",
   "codeowners": [
-    "@ludeeus"
+    "@ARosman77"
   ],
   "config_flow": true,
   "documentation": "https://github.com/ARosman77/ARSO_weather",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/ARosman77/ARSO_weather/issues",
-  "version": "0.0.0"
+  "version": "0.0.1"
 }

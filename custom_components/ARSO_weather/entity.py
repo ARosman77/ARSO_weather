@@ -1,4 +1,4 @@
-"""BlueprintEntity class."""
+"""ARSOEntity class."""
 from __future__ import annotations
 
 from homeassistant.helpers.entity import DeviceInfo
@@ -9,7 +9,7 @@ from .coordinator import ARSODataUpdateCoordinator
 
 
 class ARSOEntity(CoordinatorEntity):
-    """BlueprintEntity class."""
+    """ARSOEntity class."""
 
     _attr_attribution = ATTRIBUTION
 
