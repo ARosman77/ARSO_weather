@@ -117,7 +117,7 @@ class ARSOMeteoData:
         list_of_regions = []
         for meteo_data_region in self._meteo_fc_data_all:
             list_of_regions.append(meteo_data_region["domain_shortTitle"])
-        return list_of_regions
+        return list(set(list_of_regions)) # Using set to remove duplicate entries
 
 
 class ARSOApiClient:

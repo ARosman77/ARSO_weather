@@ -4,8 +4,8 @@
             "user": {
                 "description": "You need to choose location for the current meteo data and region for the forcast.",
                 "data": {
-                    "location": "Location",
-                    "region": "Region"
+                    "meteo_location": "Location",
+                    "meteo_region": "Region"
                 }
             }
         },
