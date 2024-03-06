@@ -16,7 +16,7 @@ from .coordinator import ARSODataUpdateCoordinator
 
 PLATFORMS: list[Platform] = [
     Platform.SENSOR,
-    #Platform.WEATHER,
+    Platform.WEATHER,
 ]
 
 
