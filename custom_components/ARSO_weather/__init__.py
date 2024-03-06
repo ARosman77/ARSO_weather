@@ -11,7 +11,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import ARSOApiClient
-from .const import DOMAIN, CONF_LOCATION
+from .const import DOMAIN
 from .coordinator import ARSODataUpdateCoordinator
 
 PLATFORMS: list[Platform] = [
