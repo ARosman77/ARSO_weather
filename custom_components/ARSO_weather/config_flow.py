@@ -11,6 +11,7 @@ from .api import (
     ARSOApiClientAuthenticationError,
     ARSOApiClientCommunicationError,
     ARSOApiClientError,
+    ARSOMeteoData,
 )
 from .const import DOMAIN, LOGGER, CONF_LOCATION
 
@@ -29,7 +30,7 @@ class ARSOFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         _errors = {}
 
         """Get list of locations to choose from."""
-        list_of_locations = await self._return_locations(location='')
+        list_of_locations = await self._return_locations()
 
         """Present settings UI."""
         if user_input is not None:
@@ -74,15 +75,18 @@ class ARSOFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         )
         await client.async_get_data()
 
-    async def _return_locations(self, location: str) -> list:
+    async def _return_locations(self) -> list:
         """Get all possible locations."""
         client = ARSOApiClient(
-            location=location,
             session=async_create_clientsession(self.hass),
         )
-        meteo_data_all = await client.async_get_data()
-        list_of_locations = []
-        for meteo_data_location in meteo_data_all:
-            list_of_locations.append(meteo_data_location["domain_title"])
-        return list_of_locations
+        meteo_data: ARSOMeteoData
+        meteo_data = await client.async_get_data()
+        return meteo_data.list_of_locations()
+
+        #meteo_data_all = await client.async_get_data()
+        #list_of_locations = []
+        #for meteo_data_location in meteo_data_all:
+        #    list_of_locations.append(meteo_data_location["domain_title"])
+        #return list_of_locations
 

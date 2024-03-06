@@ -13,7 +13,6 @@ from .entity import ARSOEntity
 ENTITY_DESCRIPTIONS = (
     SensorEntityDescription(
         key="ARSO_weather_t",
-        #name="ARSO Sensor t",
         icon="mdi:thermometer",
         device_class=SensorDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
@@ -21,7 +20,6 @@ ENTITY_DESCRIPTIONS = (
     ),
     SensorEntityDescription(
         key="ARSO_weather_rh",
-        #name="ARSO Sensor rh",
         icon="mdi:water-percent",
         device_class=SensorDeviceClass.HUMIDITY,
         native_unit_of_measurement=PERCENTAGE,
@@ -29,7 +27,6 @@ ENTITY_DESCRIPTIONS = (
     ),
     SensorEntityDescription(
         key="ARSO_weather_msl",
-        #name="ARSO Sensor msl",
         icon="mdi:thermometer-lines",
         device_class=SensorDeviceClass.ATMOSPHERIC_PRESSURE,
         native_unit_of_measurement=UnitOfPressure.HPA,
@@ -42,7 +39,6 @@ async def async_setup_entry(hass, entry, async_add_devices):
     coordinator = hass.data[DOMAIN][entry.entry_id]
     devices = []
     for entity_description in ENTITY_DESCRIPTIONS:
-        #entity_description.name = "ARSO" + str(entity_description.device_class) + "Sensor for " + entry.data[CONF_LOCATION]
         entity_description.name = entry.data[CONF_LOCATION] + " " + str(entity_description.device_class)
         if entity_description.device_class == SensorDeviceClass.TEMPERATURE:
             _data_type = 't'
@@ -59,7 +55,6 @@ async def async_setup_entry(hass, entry, async_add_devices):
                 entity_description=entity_description,
                 location=entry.data[CONF_LOCATION],
                 data_type=_data_type,
-                #sensor_entity_id = generate_entity_id("sensor.{}", "ARSO_"+_data_type+"_for_"+entry.data[CONF_LOCATION], hass=hass),
                 sensor_entity_id = generate_entity_id("sensor.{}", "ARSO_"+entry.data[CONF_LOCATION]+"_"+_data_type, hass=hass),
                 unique_id=entry.entry_id,
             )

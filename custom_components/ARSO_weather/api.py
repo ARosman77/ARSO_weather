@@ -64,6 +64,13 @@ class ARSOMeteoData:
         meteo_data_location = next((item for item in self.meteo_data_all if item["domain_title"] == location), False)
         return meteo_data_location[data_type]
 
+    def list_of_locations(self) -> list:
+        """Return list of possible locations"""
+        list_of_locations = []
+        for meteo_data_location in self.meteo_data_all:
+            list_of_locations.append(meteo_data_location["domain_title"])
+        return list_of_locations
+
 class ARSOApiClient:
     """Sample API Client."""
 
