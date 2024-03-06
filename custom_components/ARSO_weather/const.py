@@ -9,3 +9,4 @@ VERSION = "0.0.1"
 ATTRIBUTION = "Data provided by ARSO (https://meteo.arso.gov.si/)."
 
 CONF_LOCATION = "meteo_location"
+CONF_REGION = "meteo_region"

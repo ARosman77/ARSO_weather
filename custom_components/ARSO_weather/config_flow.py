@@ -14,7 +14,7 @@ from .api import (
     ARSOApiClientError,
     ARSOMeteoData,
 )
-from .const import DOMAIN, LOGGER, CONF_LOCATION
+from .const import DOMAIN, LOGGER, CONF_LOCATION, CONF_REGION
 
 
 class ARSOFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
@@ -31,6 +31,7 @@ class ARSOFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
         # Get list of locations to choose from.
         list_of_locations = await self._return_locations()
+        list_of_regions = await self._return_regions()
 
         # Present settings UI.
         if user_input is not None:
@@ -61,6 +62,12 @@ class ARSOFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                             mode=selector.SelectSelectorMode.DROPDOWN,
                         ),
                     ),
+                    vol.Required(CONF_REGION): selector.SelectSelector(
+                        selector.SelectSelectorConfig(
+                            options=list_of_regions,
+                            mode=selector.SelectSelectorMode.DROPDOWN,
+                        ),
+                    ),
                 }
             ),
             errors=_errors,
@@ -81,3 +88,12 @@ class ARSOFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         meteo_data: ARSOMeteoData
         meteo_data = await client.async_get_data()
         return meteo_data.list_of_locations()
+
+    async def _return_regions(self) -> list:
+        """Get all possible regions."""
+        client = ARSOApiClient(
+            session=async_create_clientsession(self.hass),
+        )
+        meteo_data: ARSOMeteoData
+        meteo_data = await client.async_get_data()
+        return meteo_data.list_of_forecast_regions()

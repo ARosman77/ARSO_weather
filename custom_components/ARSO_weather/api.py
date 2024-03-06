@@ -25,18 +25,19 @@ class ARSOApiClientAuthenticationError(ARSOApiClientError):
 
 
 class ARSOMeteoData:
-    """Meteo data class"""
+    """Meteo data class."""
 
     def __init__(
         self,
         current_data: str,
         forecast_data: str,
     ) -> None:
+        """Initialize Meteo data class."""
         self._current_data = current_data
         self._forecast_data = forecast_data
+        self._meteo_data_all = []
+        self._meteo_fc_data_all = []
 
-        self.meteo_data_all = []
-        root = ET.fromstring(current_data)
         data_selection = [
             "domain_title",
             "domain_longTitle",
@@ -47,11 +48,38 @@ class ARSOMeteoData:
             "rh",
             "msl",
         ]
+
+        data_fc_selection = [
+            "domain_shortTitle",
+            "domain_lat",
+            "domain_lon",
+            "domain_altitude",
+            "valid",
+            "nn_decodeText",
+            "wwsyn_decodeText",
+            "rr_decodeText",
+            "td",  # dev point
+            "dd_decodeText",  # wind direction
+            "ff_val",  # wind m/s
+            "t",
+            "tnsyn",  # min temp
+            "txsyn",  # max temp
+            "msl",
+        ]
+
+        root = ET.fromstring(current_data)
         for meteo_parent in root.findall("metData"):
             meteo_data_location = {}
             for data in data_selection:
                 meteo_data_location[data] = meteo_parent.find(data).text
-            self.meteo_data_all.append(meteo_data_location)
+            self._meteo_data_all.append(meteo_data_location)
+
+        root = ET.fromstring(forecast_data)
+        for meteo_parent in root.findall("metData"):
+            meteo_data_region = {}
+            for data in data_fc_selection:
+                meteo_data_region[data] = meteo_parent.find(data).text
+            self._meteo_fc_data_all.append(meteo_data_region)
 
     def current_temperature(self, location: str) -> str:
         """Return temperature of the location."""
@@ -70,7 +98,7 @@ class ARSOMeteoData:
         meteo_data_location = next(
             (
                 item
-                for item in self.meteo_data_all
+                for item in self._meteo_data_all
                 if item["domain_longTitle"] == location
             ),
             False,
@@ -78,11 +106,18 @@ class ARSOMeteoData:
         return meteo_data_location[data_type]
 
     def list_of_locations(self) -> list:
-        """Return list of possible locations"""
+        """Return list of possible locations."""
         list_of_locations = []
-        for meteo_data_location in self.meteo_data_all:
+        for meteo_data_location in self._meteo_data_all:
             list_of_locations.append(meteo_data_location["domain_longTitle"])
         return list_of_locations
+
+    def list_of_forecast_regions(self) -> list:
+        """Return list of possible forecast regions."""
+        list_of_regions = []
+        for meteo_data_region in self._meteo_fc_data_all:
+            list_of_regions.append(meteo_data_region["domain_shortTitle"])
+        return list_of_regions
 
 
 class ARSOApiClient:

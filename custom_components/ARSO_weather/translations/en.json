@@ -2,9 +2,10 @@
     "config": {
         "step": {
             "user": {
-                "description": "If you need help with the configuration have a look here: https://github.com/ARosman77/ARSO_weather",
+                "description": "You need to choose location for the current meteo data and region for the forcast.",
                 "data": {
-                    "location": "Location"
+                    "location": "Location",
+                    "region": "Region"
                 }
             }
         },
