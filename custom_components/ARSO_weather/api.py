@@ -68,7 +68,11 @@ class ARSOMeteoData:
     def current_meteo_data(self, location: str, data_type: str) -> str:
         """Return temperature of the location."""
         meteo_data_location = next(
-            (item for item in self.meteo_data_all if item["domain_title"] == location),
+            (
+                item
+                for item in self.meteo_data_all
+                if item["domain_longTitle"] == location
+            ),
             False,
         )
         return meteo_data_location[data_type]
@@ -77,7 +81,7 @@ class ARSOMeteoData:
         """Return list of possible locations"""
         list_of_locations = []
         for meteo_data_location in self.meteo_data_all:
-            list_of_locations.append(meteo_data_location["domain_title"])
+            list_of_locations.append(meteo_data_location["domain_longTitle"])
         return list_of_locations
 
 

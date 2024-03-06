@@ -1,4 +1,5 @@
 """Adds config flow for Blueprint."""
+
 from __future__ import annotations
 
 import voluptuous as vol
@@ -15,6 +16,7 @@ from .api import (
 )
 from .const import DOMAIN, LOGGER, CONF_LOCATION
 
+
 class ARSOFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     """Config flow for ARSO Weather."""
 
@@ -27,10 +29,10 @@ class ARSOFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         """Handle a flow initialized by the user."""
         _errors = {}
 
-        #Get list of locations to choose from.
+        # Get list of locations to choose from.
         list_of_locations = await self._return_locations()
 
-        #Present settings UI.
+        # Present settings UI.
         if user_input is not None:
             try:
                 await self._test_connecton()
@@ -56,6 +58,7 @@ class ARSOFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                     vol.Required(CONF_LOCATION): selector.SelectSelector(
                         selector.SelectSelectorConfig(
                             options=list_of_locations,
+                            mode=selector.SelectSelectorMode.DROPDOWN,
                         ),
                     ),
                 }
