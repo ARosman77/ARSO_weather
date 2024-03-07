@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from homeassistant.helpers.entity import generate_entity_id
 
-from .const import DOMAIN, CONF_REGION, ATTRIBUTION, LOGGER
+from .const import DOMAIN, CONF_LOCATION, CONF_REGION, ATTRIBUTION, LOGGER
 from .coordinator import ARSODataUpdateCoordinator
 from .entity import ARSOEntity
 
@@ -82,13 +82,15 @@ async def async_setup_entry(hass, entry, async_add_devices):
     coordinator = hass.data[DOMAIN][entry.entry_id]
     devices = []
     for entity_description in ENTITY_DESCRIPTIONS:
+        entity_description.name = entry.data[CONF_LOCATION]
         devices.append(
             ARSOWeather(
                 coordinator=coordinator,
                 entity_description=entity_description,
+                location=entry.data[CONF_LOCATION],
                 region=entry.data[CONF_REGION],
                 weather_entity_id=generate_entity_id(
-                    "sensor.{}",
+                    "weather.{}",
                     "ARSO_" + entry.data[CONF_REGION],
                     hass=hass,
                 ),
@@ -98,67 +100,77 @@ async def async_setup_entry(hass, entry, async_add_devices):
         async_add_devices(devices)
 
 
-class ARSOWeather(WeatherEntity):
+class ARSOWeather(ARSOEntity, WeatherEntity):
     """Representation of a weather condition."""
 
     def __init__(
         self,
         coordinator: ARSODataUpdateCoordinator,
         entity_description: WeatherEntityDescription,
+        location: str,
         region: str,
         weather_entity_id: str | None = None,
         unique_id: str | None = None,
     ):
         """Initialise the platform with a data instance and station name."""
         LOGGER.debug("Initialized.")
-        self.coordinator = coordinator
-        self._entity_description=entity_description
+        super().__init__(coordinator)
+        self.entity_id = weather_entity_id
 
-    def update(self):
-        """Update current conditions."""
-        LOGGER.debug("Update - called.")
+        self._location = location
+        self._region = region
+
+        self._attr_unique_id = unique_id + self._region
+        self._attr_name = entity_description.name
+        self._attr_attribution = ATTRIBUTION
 
     @property
     def supported_features(self) -> WeatherEntityFeature:
         """Return supported features."""
+        LOGGER.debug("supported_features")
         return (
             WeatherEntityFeature.FORECAST_HOURLY | WeatherEntityFeature.FORECAST_DAILY
         )
 
     @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._entity_description.name
-
-    @property
     def state(self):
         """Return the state of the sensor."""
-        return self._state
+        LOGGER.debug("state")
+        return "sunny"
 
     @property
     def condition(self):
         """Return the current condition."""
+        LOGGER.debug("condition")
         return "cloudy"
 
-    @property
-    def entity_picture(self):
-        """Weather symbol if type is condition."""
-        return None
+    # @property
+    # def entity_picture(self):
+    #    """Weather symbol if type is condition."""
+    #    LOGGER.debug("entity_picture")
+    #    return None
 
-    @property
-    def attribution(self):
-        """Return the attribution."""
-        return ATTRIBUTION
+    # @property
+    # def attribution(self):
+    #    """Return the attribution."""
+    #    LOGGER.debug("attribution")
+    #    return ATTRIBUTION
 
-    @property
-    def extra_state_attributes(self):
-        """Return the state attributes."""
-        return "attr"
+    # @property
+    # def extra_state_attributes(self):
+    #    """Return the state attributes."""
+    #    LOGGER.debug("extra_state_attributes")
+    #    return "attr"
 
     @property
     def native_temperature(self):
         """Return the platform temperature."""
-        return 3.0
+        LOGGER.debug(
+            "native_temperature:"
+            + self.coordinator.data.current_temperature(self._location)
+        )
+        # return 3.0
+        return self.coordinator.data.current_temperature(self._location)
 
     @property
     def native_temperature_unit(self):
@@ -168,52 +180,63 @@ class ARSOWeather(WeatherEntity):
     @property
     def native_pressure(self):
         """Return platform air pressure."""
+        LOGGER.debug("native_pressure")
         return 1000.0
 
     @property
     def native_pressure_unit(self):
         """Return the unit of measurement."""
+        LOGGER.debug("native_pressure_unit")
         return UnitOfPressure.HPA
 
     @property
     def humidity(self):
         """Return the humidity."""
+        LOGGER.debug("humidity")
         return 30
 
     @property
     def native_precipitation(self):
         """Return the precipitation."""
+        LOGGER.debug("native_precipitation")
         return 10.0
 
     @property
     def native_precipitation_unit(self):
         """Return the precipitation unit."""
+        LOGGER.debug("native_precipitation_unit")
         return UnitOfPrecipitationDepth.MILLIMETERS
 
     @property
     def native_wind_speed(self):
         """Return the wind speed."""
+        LOGGER.debug("native_wind_speed")
         return 10
 
     @property
     def native_wind_speed_unit(self):
         """Return the unit of measurement."""
+        LOGGER.debug("native_wind_speed_unit")
         return UnitOfSpeed.METERS_PER_SECOND
 
     @property
     def wind_bearing(self):
         """Return the wind bearing."""
+        LOGGER.debug("wind_bearing")
         return 50
 
-    async def async_forecast_hourly(self) -> list[Forecast]:
-        """Return hourly forecast."""
-        return self._get_forecast()
+    # async def async_forecast_hourly(self) -> list[Forecast]:
+    #    """Return hourly forecast."""
+    #    #return self._get_forecast()
+    #    return None
 
-    async def async_forecast_daily(self) -> list[Forecast]:
-        """Return daily forecast."""
-        return self._get_forecast()
+    # async def async_forecast_daily(self) -> list[Forecast]:
+    #    """Return daily forecast."""
+    #    #return self._get_forecast()
+    #    return None
 
-    @property
-    def forecast(self):
-        """Return forecast."""
-        return self._get_forecast()
+    # @property
+    # def forecast(self):
+    #    """Return forecast."""
+    #    #return self._get_forecast()
+    #    return None
