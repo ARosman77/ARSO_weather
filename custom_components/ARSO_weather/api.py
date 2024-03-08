@@ -9,7 +9,7 @@ import socket
 import aiohttp
 import async_timeout
 
-# from .const import LOGGER
+from .const import LOGGER
 
 
 class ARSOApiClientError(Exception):
@@ -47,6 +47,7 @@ class ARSOMeteoData:
             "t",
             "rh",
             "msl",
+            "nn_icon-wwsyn_icon",
         ]
 
         data_fc_selection = [
@@ -85,13 +86,27 @@ class ARSOMeteoData:
         """Return temperature of the location."""
         return self.current_meteo_data(location, "t")
 
-    def current_humidity(self, location: str) -> str:
+    def current_humidity(self, location: str) -> float:
         """Return humidity of the location."""
-        return self.current_meteo_data(location, "rh")
+        return float(self.current_meteo_data(location, "rh"))
 
     def current_air_pressure(self, location: str) -> str:
         """Return air pressure of the location."""
         return self.current_meteo_data(location, "msl")
+
+    def current_condition(self, location: str) -> str:
+        """Return current condition of the location."""
+        # here we are only interested in main condition, not additional things like rain...
+        # the result can be put together using these keywords:
+        # clear, mostClear, slightCloudy, partCloudy, modCloudy, prevCloudy, overcast, FG
+        # light, mod, heavy
+        # FG, DZ, FZDZ, RA, FZRA, RASN, SN, SHRA, SHRASN, SHSN, SHGR, TS, TSRA, TSRASN, TSSN, TSGR
+        # (megla; rosenje; rosenje, ki zmrzuje; dež; dež, ki zmrzuje; dež s snegom; sneg; ploha dežja; ploha dežja s snegom; snežna ploha; ploha sodre; nevihta; nevihta z dežjem; nevihta z dežjem in snegom; nevihta s sneženjem; nevihta s točo)
+        LOGGER.debug(
+            "<nn_icon-wwsyn_icon> = "
+            + self.current_meteo_data(location, "nn_icon-wwsyn_icon"),
+        )
+        return self.current_meteo_data(location, "nn_icon-wwsyn_icon").split("_")[0]
 
     def current_meteo_data(self, location: str, data_type: str) -> str:
         """Return temperature of the location."""
@@ -117,7 +132,7 @@ class ARSOMeteoData:
         list_of_regions = []
         for meteo_data_region in self._meteo_fc_data_all:
             list_of_regions.append(meteo_data_region["domain_shortTitle"])
-        return list(set(list_of_regions)) # Using set to remove duplicate entries
+        return list(set(list_of_regions))  # Using set to remove duplicate entries
 
 
 class ARSOApiClient:

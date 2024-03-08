@@ -9,22 +9,22 @@ from .coordinator import ARSODataUpdateCoordinator
 from .entity import ARSOEntity
 
 from homeassistant.components.weather import (
-    ATTR_WEATHER_HUMIDITY,
-    ATTR_WEATHER_PRESSURE,
-    ATTR_WEATHER_TEMPERATURE,
-    ATTR_WEATHER_WIND_BEARING,
-    ATTR_WEATHER_WIND_SPEED,
-    ATTR_FORECAST_TIME,
-    ATTR_FORECAST_TEMP,
-    ATTR_FORECAST_TEMP_LOW,
-    ATTR_FORECAST_CONDITION,
-    ATTR_FORECAST_WIND_SPEED,
-    ATTR_FORECAST_WIND_BEARING,
-    ATTR_FORECAST_PRECIPITATION,
-    PLATFORM_SCHEMA,
+    # ATTR_WEATHER_HUMIDITY,
+    # ATTR_WEATHER_PRESSURE,
+    # ATTR_WEATHER_TEMPERATURE,
+    # ATTR_WEATHER_WIND_BEARING,
+    # ATTR_WEATHER_WIND_SPEED,
+    # ATTR_FORECAST_TIME,
+    # ATTR_FORECAST_TEMP,
+    # ATTR_FORECAST_TEMP_LOW,
+    # ATTR_FORECAST_CONDITION,
+    # ATTR_FORECAST_WIND_SPEED,
+    # ATTR_FORECAST_WIND_BEARING,
+    # ATTR_FORECAST_PRECIPITATION,
+    # PLATFORM_SCHEMA,
     WeatherEntity,
     WeatherEntityDescription,
-    Forecast,
+    # Forecast,
     WeatherEntityFeature,
 )
 from homeassistant.const import (
@@ -33,6 +33,18 @@ from homeassistant.const import (
     UnitOfSpeed,
     UnitOfPrecipitationDepth,
 )
+
+# condition mapping for tag <nn_icon-wwsyn_icon> in observations xml
+CONDITION_MAPPING = {
+    "clear": "sunny",
+    "mostClear": "sunny",
+    "slightCloudy": "sunny",
+    "partCloudy": "partlycloudy",
+    "modCloudy": "partlycloudy",
+    "prevCloudy": "cloudy",
+    "overcast": "cloudy",
+    "FG": "fog",
+}
 
 WIND_MAPPING = {
     0: ("-", 0),
@@ -128,33 +140,27 @@ class ARSOWeather(ARSOEntity, WeatherEntity):
     def supported_features(self) -> WeatherEntityFeature:
         """Return supported features."""
         LOGGER.debug("supported_features")
-        return (
-            WeatherEntityFeature.FORECAST_HOURLY | WeatherEntityFeature.FORECAST_DAILY
-        )
+        # return (
+        #    WeatherEntityFeature.FORECAST_HOURLY | WeatherEntityFeature.FORECAST_DAILY
+        # )
+        return None
 
     @property
     def state(self):
-        """Return the state of the sensor."""
-        LOGGER.debug("state")
-        return "sunny"
-
-    @property
-    def condition(self):
-        """Return the current condition."""
-        LOGGER.debug("condition")
-        return "cloudy"
+        """Return the condition at specified location."""
+        LOGGER.debug(
+            "condition:"
+            + CONDITION_MAPPING[self.coordinator.data.current_condition(self._location)]
+        )
+        return CONDITION_MAPPING[
+            self.coordinator.data.current_condition(self._location)
+        ]
 
     # @property
     # def entity_picture(self):
     #    """Weather symbol if type is condition."""
     #    LOGGER.debug("entity_picture")
     #    return None
-
-    # @property
-    # def attribution(self):
-    #    """Return the attribution."""
-    #    LOGGER.debug("attribution")
-    #    return ATTRIBUTION
 
     # @property
     # def extra_state_attributes(self):
@@ -169,7 +175,6 @@ class ARSOWeather(ARSOEntity, WeatherEntity):
             "native_temperature:"
             + self.coordinator.data.current_temperature(self._location)
         )
-        # return 3.0
         return self.coordinator.data.current_temperature(self._location)
 
     @property
@@ -180,8 +185,11 @@ class ARSOWeather(ARSOEntity, WeatherEntity):
     @property
     def native_pressure(self):
         """Return platform air pressure."""
-        LOGGER.debug("native_pressure")
-        return 1000.0
+        LOGGER.debug(
+            "native_pressure:"
+            + self.coordinator.data.current_air_pressure(self._location)
+        )
+        return self.coordinator.data.current_air_pressure(self._location)
 
     @property
     def native_pressure_unit(self):
@@ -192,8 +200,11 @@ class ARSOWeather(ARSOEntity, WeatherEntity):
     @property
     def humidity(self):
         """Return the humidity."""
-        LOGGER.debug("humidity")
-        return 30
+        LOGGER.debug(
+            "native_humidity:"
+            + str(self.coordinator.data.current_humidity(self._location))
+        )
+        return self.coordinator.data.current_humidity(self._location)
 
     @property
     def native_precipitation(self):
