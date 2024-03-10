@@ -24,7 +24,7 @@ from homeassistant.components.weather import (
     # PLATFORM_SCHEMA,
     WeatherEntity,
     WeatherEntityDescription,
-    # Forecast,
+    Forecast,
     WeatherEntityFeature,
 )
 from homeassistant.const import (
@@ -235,6 +235,14 @@ class ARSOWeather(ARSOEntity, WeatherEntity):
         """Return the wind bearing."""
         LOGGER.debug("wind_bearing")
         return 50
+
+    def _get_forecast(self) -> Forecast:
+        """Return forecast."""
+        _forecast = Forecast(
+            condition="sunny",
+            datetime="",
+        )
+        return _forecast
 
     # async def async_forecast_hourly(self) -> list[Forecast]:
     #    """Return hourly forecast."""

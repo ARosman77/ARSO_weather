@@ -11,6 +11,41 @@ import async_timeout
 
 from .const import LOGGER
 
+# condition mapping for tag <nn_icon-wwsyn_icon> in observations xml
+CONDITION_MAPPING = {
+    "clear": "sunny",
+    "mostClear": "sunny",
+    "slightCloudy": "sunny",
+    "partCloudy": "partlycloudy",
+    "modCloudy": "partlycloudy",
+    "prevCloudy": "cloudy",
+    "overcast": "cloudy",
+    "FG": "fog",
+}
+
+# posibile conditions
+#    ‘clear-night’
+#    ‘cloudy’
+#    ‘fog’
+#    ‘hail’
+#    ‘lightning’
+#    ‘lightning-rainy’
+#    ‘partlycloudy’
+#    ‘pouring’
+#    ‘rainy’
+#    ‘snowy’
+#    ‘snowy-rainy’
+#    ‘sunny’
+#    ‘windy’
+#    ‘windy-variant’
+#    ‘exceptional’
+# here we are only interested in main condition, not additional things like rain...
+# the result can be put together using these keywords:
+# clear, mostClear, slightCloudy, partCloudy, modCloudy, prevCloudy, overcast, FG
+# light, mod, heavy
+# FG, DZ, FZDZ, RA, FZRA, RASN, SN, SHRA, SHRASN, SHSN, SHGR, TS, TSRA, TSRASN, TSSN, TSGR
+# (megla; rosenje; rosenje, ki zmrzuje; dež; dež, ki zmrzuje; dež s snegom; sneg; ploha dežja; ploha dežja s snegom; snežna ploha; ploha sodre; nevihta; nevihta z dežjem; nevihta z dežjem in snegom; nevihta s sneženjem; nevihta s točo)
+
 
 class ARSOApiClientError(Exception):
     """Exception to indicate a general API error."""
@@ -111,12 +146,9 @@ class ARSOMeteoData:
     def current_meteo_data(self, location: str, data_type: str) -> str:
         """Return temperature of the location."""
         meteo_data_location = next(
-            (
-                item
-                for item in self._meteo_data_all
-                if item["domain_longTitle"] == location
-            ),
-            False,
+            item
+            for item in self._meteo_data_all
+            if item["domain_longTitle"] == location
         )
         return meteo_data_location[data_type]
 
