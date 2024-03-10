@@ -11,8 +11,15 @@ import async_timeout
 
 from .const import LOGGER
 
-# condition mapping for tag <nn_icon-wwsyn_icon> in observations xml
-CONDITION_MAPPING = {
+# posibile conditions, and what should they be translated from
+#    ‘clear-night’
+
+#    ‘cloudy’ = prevCloudy, overcast,
+#    ‘sunny’ = clear, mostClear, slightCloudy
+#    ‘partlycloudy’ = , partCloudy, modCloudy
+
+# cloud condition mapping
+CLOUD_CONDITION_MAPPING = {
     "clear": "sunny",
     "mostClear": "sunny",
     "slightCloudy": "sunny",
@@ -23,22 +30,41 @@ CONDITION_MAPPING = {
     "FG": "fog",
 }
 
-# posibile conditions
-#    ‘clear-night’
-#    ‘cloudy’
-#    ‘fog’
-#    ‘hail’
-#    ‘lightning’
-#    ‘lightning-rainy’
-#    ‘partlycloudy’
-#    ‘pouring’
-#    ‘rainy’
-#    ‘snowy’
-#    ‘snowy-rainy’
-#    ‘sunny’
+# phenomena condition mapping (must search through dictonary / reverse dictonary)
+PHENOMENA_CONDITION_MAPPING = {
+    "FG": "fog",
+    "SHGR": "hail",
+    "TSGR": "hail",
+    "TS": "lightning",
+    "TSRA": "lightning-rainy",
+    "RA": "rainy",
+    "DZ": "rainy",
+    "FZDZ": "rainy",
+    "FZRA": "rainy",
+    "SHRA": "rainy",
+    "SN": "snowy",
+    "SHSN": "snowy",
+    "TSSN": "snowy",
+    "RASN": "snowy-rainy",
+    "SHRASN": "snowy-rainy",
+    "TSRASN": "snowy-rainy",
+}
+#    ‘fog’ = FG
+#    ‘hail’ = SHGR, TSGR
+#    ‘lightning’ = TS
+#    ‘lightning-rainy’ = TSRA
+#    ‘rainy’ = RA, DZ, FZDZ, FZRA, SHRA
+#    ‘snowy’ = SN, SHSN, TSSN
+#    ‘snowy-rainy’ = RASN, SHRASN, TSRASN
+#
+#    ‘pouring’ = heavyRA
+#
+# This ones don't exist in homeassistant
+#
 #    ‘windy’
 #    ‘windy-variant’
 #    ‘exceptional’
+#
 # here we are only interested in main condition, not additional things like rain...
 # the result can be put together using these keywords:
 # clear, mostClear, slightCloudy, partCloudy, modCloudy, prevCloudy, overcast, FG
@@ -129,19 +155,51 @@ class ARSOMeteoData:
         """Return air pressure of the location."""
         return self.current_meteo_data(location, "msl")
 
+    def _decode_meteo_condition(self, description: str) -> str:
+        """Decode meteo condition to home assistant condition."""
+
+        list_of_conditions = description.split("_")
+        cloud_condition = list_of_conditions[0] if len(list_of_conditions) > 0 else None
+        phenomena_condition = (
+            list_of_conditions[1] if len(list_of_conditions) > 1 else None
+        )
+
+        if phenomena_condition is not None:
+            phenomena_type = "".join([c for c in phenomena_condition if c.isupper()])
+            phenomena_strength = "".join(
+                [c for c in phenomena_condition if c.islower()]
+            )
+        else:
+            phenomena_type = None
+            phenomena_strength = None
+
+        LOGGER.debug("cloud_condition=" + str(cloud_condition))
+        LOGGER.debug("phenomena_type=" + str(phenomena_type))
+        LOGGER.debug("phenomena_strength=" + str(phenomena_strength))
+
+        # complicated decoding done here:
+        if phenomena_type is None:
+            return CLOUD_CONDITION_MAPPING[cloud_condition]
+        # ‘pouring’ = heavyRA
+        elif (phenomena_type == "RA") and (phenomena_strength == "heavy"):
+            return "pouring"
+        else:
+            return PHENOMENA_CONDITION_MAPPING[phenomena_type]
+
     def current_condition(self, location: str) -> str:
         """Return current condition of the location."""
-        # here we are only interested in main condition, not additional things like rain...
-        # the result can be put together using these keywords:
-        # clear, mostClear, slightCloudy, partCloudy, modCloudy, prevCloudy, overcast, FG
-        # light, mod, heavy
-        # FG, DZ, FZDZ, RA, FZRA, RASN, SN, SHRA, SHRASN, SHSN, SHGR, TS, TSRA, TSRASN, TSSN, TSGR
-        # (megla; rosenje; rosenje, ki zmrzuje; dež; dež, ki zmrzuje; dež s snegom; sneg; ploha dežja; ploha dežja s snegom; snežna ploha; ploha sodre; nevihta; nevihta z dežjem; nevihta z dežjem in snegom; nevihta s sneženjem; nevihta s točo)
         LOGGER.debug(
             "<nn_icon-wwsyn_icon> = "
-            + self.current_meteo_data(location, "nn_icon-wwsyn_icon"),
+            + self.current_meteo_data(location, "nn_icon-wwsyn_icon")
+            + " => condition = "
+            + self._decode_meteo_condition(
+                self.current_meteo_data(location, "nn_icon-wwsyn_icon")
+            )
         )
-        return self.current_meteo_data(location, "nn_icon-wwsyn_icon").split("_")[0]
+
+        return self._decode_meteo_condition(
+            self.current_meteo_data(location, "nn_icon-wwsyn_icon")
+        )
 
     def current_meteo_data(self, location: str, data_type: str) -> str:
         """Return temperature of the location."""

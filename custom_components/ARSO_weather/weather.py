@@ -148,13 +148,7 @@ class ARSOWeather(ARSOEntity, WeatherEntity):
     @property
     def state(self):
         """Return the condition at specified location."""
-        LOGGER.debug(
-            "condition:"
-            + CONDITION_MAPPING[self.coordinator.data.current_condition(self._location)]
-        )
-        return CONDITION_MAPPING[
-            self.coordinator.data.current_condition(self._location)
-        ]
+        return self.coordinator.data.current_condition(self._location)
 
     # @property
     # def entity_picture(self):
