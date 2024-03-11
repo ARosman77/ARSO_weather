@@ -9,15 +9,16 @@ from .coordinator import ARSODataUpdateCoordinator
 from .entity import ARSOEntity
 
 from homeassistant.components.weather import (
+    ATTR_FORECAST_TIME,
     # ATTR_WEATHER_HUMIDITY,
     # ATTR_WEATHER_PRESSURE,
-    # ATTR_WEATHER_TEMPERATURE,
+    ATTR_WEATHER_TEMPERATURE,
     # ATTR_WEATHER_WIND_BEARING,
     # ATTR_WEATHER_WIND_SPEED,
     # ATTR_FORECAST_TIME,
     # ATTR_FORECAST_TEMP,
     # ATTR_FORECAST_TEMP_LOW,
-    # ATTR_FORECAST_CONDITION,
+    ATTR_FORECAST_CONDITION,
     # ATTR_FORECAST_WIND_SPEED,
     # ATTR_FORECAST_WIND_BEARING,
     # ATTR_FORECAST_PRECIPITATION,
@@ -228,10 +229,17 @@ class ARSOWeather(ARSOEntity, WeatherEntity):
     def _get_forecast(self) -> list[Forecast]:
         """Return forecast."""
         _forecasts = []
-        _forecast = Forecast(
-            condition="sunny",
-            datetime="12.03.2024 13:00 CET",
-        )
+        data = {}
+        data[ATTR_WEATHER_TEMPERATURE] = 20
+        data[ATTR_FORECAST_CONDITION] = "sunny"
+        data[ATTR_FORECAST_TIME] = "12.03.2024 13:00 CET"
+        _forecast = Forecast(data)
+        # _forecast = Forecast(
+        #    condition="sunny",
+        #    datetime="12.03.2024 13:00 CET",
+        # )
+        _forecasts.append(_forecast)
+        _forecasts.append(_forecast)
         _forecasts.append(_forecast)
         return _forecasts
 
@@ -242,6 +250,7 @@ class ARSOWeather(ARSOEntity, WeatherEntity):
 
     async def async_forecast_daily(self) -> list[Forecast]:
         """Return daily forecast."""
+        LOGGER.debug("_get_forecast: " + str(self._get_forecast()))
         return self._get_forecast()
         # return None
 

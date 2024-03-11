@@ -18,7 +18,7 @@
                 "github.vscode-pull-request-github",
                 "ryanluker.vscode-coverage-gutters",
                 "ms-python.vscode-pylance",
-                "jerrygoyal.shortcut-menu-bar"
+                "charliermarsh.ruff"
             ],
             "settings": {
                 "files.eol": "\n",
