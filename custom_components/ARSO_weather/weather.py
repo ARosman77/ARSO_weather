@@ -34,18 +34,6 @@ from homeassistant.const import (
     UnitOfPrecipitationDepth,
 )
 
-# condition mapping for tag <nn_icon-wwsyn_icon> in observations xml
-CONDITION_MAPPING = {
-    "clear": "sunny",
-    "mostClear": "sunny",
-    "slightCloudy": "sunny",
-    "partCloudy": "partlycloudy",
-    "modCloudy": "partlycloudy",
-    "prevCloudy": "cloudy",
-    "overcast": "cloudy",
-    "FG": "fog",
-}
-
 WIND_MAPPING = {
     0: ("-", 0),
     1: ("N", 10),
@@ -143,7 +131,8 @@ class ARSOWeather(ARSOEntity, WeatherEntity):
         # return (
         #    WeatherEntityFeature.FORECAST_HOURLY | WeatherEntityFeature.FORECAST_DAILY
         # )
-        return None
+        # return None
+        return WeatherEntityFeature.FORECAST_DAILY
 
     @property
     def state(self):
@@ -215,8 +204,11 @@ class ARSOWeather(ARSOEntity, WeatherEntity):
     @property
     def native_wind_speed(self):
         """Return the wind speed."""
-        LOGGER.debug("native_wind_speed")
-        return 10
+        LOGGER.debug(
+            "native_wind_speed: "
+            + str(self.coordinator.data.current_wind_speed(self._location))
+        )
+        return self.coordinator.data.current_wind_speed(self._location)
 
     @property
     def native_wind_speed_unit(self):
@@ -227,26 +219,31 @@ class ARSOWeather(ARSOEntity, WeatherEntity):
     @property
     def wind_bearing(self):
         """Return the wind bearing."""
-        LOGGER.debug("wind_bearing")
-        return 50
+        LOGGER.debug(
+            "wind_bearing: "
+            + str(self.coordinator.data.current_wind_direction(self._location))
+        )
+        return self.coordinator.data.current_wind_direction(self._location)
 
-    def _get_forecast(self) -> Forecast:
+    def _get_forecast(self) -> list[Forecast]:
         """Return forecast."""
+        _forecasts = []
         _forecast = Forecast(
             condition="sunny",
-            datetime="",
+            datetime="12.03.2024 13:00 CET",
         )
-        return _forecast
+        _forecasts.append(_forecast)
+        return _forecasts
 
     # async def async_forecast_hourly(self) -> list[Forecast]:
     #    """Return hourly forecast."""
     #    #return self._get_forecast()
     #    return None
 
-    # async def async_forecast_daily(self) -> list[Forecast]:
-    #    """Return daily forecast."""
-    #    #return self._get_forecast()
-    #    return None
+    async def async_forecast_daily(self) -> list[Forecast]:
+        """Return daily forecast."""
+        return self._get_forecast()
+        # return None
 
     # @property
     # def forecast(self):

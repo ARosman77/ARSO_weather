@@ -30,7 +30,14 @@ CLOUD_CONDITION_MAPPING = {
     "FG": "fog",
 }
 
-# phenomena condition mapping (must search through dictonary / reverse dictonary)
+# phenomena condition mapping
+#   ‘fog’ = FG
+#   ‘hail’ = SHGR, TSGR
+#   ‘lightning’ = TS
+#   ‘lightning-rainy’ = TSRA
+#   ‘rainy’ = RA, DZ, FZDZ, FZRA, SHRA
+#   ‘snowy’ = SN, SHSN, TSSN
+#   ‘snowy-rainy’ = RASN, SHRASN, TSRASN
 PHENOMENA_CONDITION_MAPPING = {
     "FG": "fog",
     "SHGR": "hail",
@@ -49,28 +56,17 @@ PHENOMENA_CONDITION_MAPPING = {
     "SHRASN": "snowy-rainy",
     "TSRASN": "snowy-rainy",
 }
-#    ‘fog’ = FG
-#    ‘hail’ = SHGR, TSGR
-#    ‘lightning’ = TS
-#    ‘lightning-rainy’ = TSRA
-#    ‘rainy’ = RA, DZ, FZDZ, FZRA, SHRA
-#    ‘snowy’ = SN, SHSN, TSSN
-#    ‘snowy-rainy’ = RASN, SHRASN, TSRASN
+
+# Processed sepparately
+#   ‘pouring’ = heavyRA
+
 #
-#    ‘pouring’ = heavyRA
-#
-# This ones don't exist in homeassistant
+# This ones don't exist in meteo data
 #
 #    ‘windy’
 #    ‘windy-variant’
 #    ‘exceptional’
 #
-# here we are only interested in main condition, not additional things like rain...
-# the result can be put together using these keywords:
-# clear, mostClear, slightCloudy, partCloudy, modCloudy, prevCloudy, overcast, FG
-# light, mod, heavy
-# FG, DZ, FZDZ, RA, FZRA, RASN, SN, SHRA, SHRASN, SHSN, SHGR, TS, TSRA, TSRASN, TSSN, TSGR
-# (megla; rosenje; rosenje, ki zmrzuje; dež; dež, ki zmrzuje; dež s snegom; sneg; ploha dežja; ploha dežja s snegom; snežna ploha; ploha sodre; nevihta; nevihta z dežjem; nevihta z dežjem in snegom; nevihta s sneženjem; nevihta s točo)
 
 
 class ARSOApiClientError(Exception):
@@ -109,6 +105,8 @@ class ARSOMeteoData:
             "rh",
             "msl",
             "nn_icon-wwsyn_icon",
+            "dd_val",
+            "ff_val",
         ]
 
         data_fc_selection = [
@@ -200,6 +198,14 @@ class ARSOMeteoData:
         return self._decode_meteo_condition(
             self.current_meteo_data(location, "nn_icon-wwsyn_icon")
         )
+
+    def current_wind_direction(self, location: str) -> float:
+        """Return current wind direction."""
+        return float(self.current_meteo_data(location, "dd_val"))
+
+    def current_wind_speed(self, location: str) -> float:
+        """Return current wind speed."""
+        return float(self.current_meteo_data(location, "ff_val"))
 
     def current_meteo_data(self, location: str, data_type: str) -> str:
         """Return temperature of the location."""
