@@ -236,7 +236,8 @@ class ARSOWeather(ARSOEntity, WeatherEntity):
         data = {}
         data[ATTR_WEATHER_TEMPERATURE] = 20
         data[ATTR_FORECAST_CONDITION] = "sunny"
-        data[ATTR_FORECAST_TIME] = "12.03.2024 13:00 CET"
+        data[ATTR_FORECAST_TIME] = "2024-03-12T12:09:32Z"
+        self.coordinator.data.fc_list_of_dates(self._region)
         _forecast = Forecast(data)
         # _forecast = Forecast(
         #    condition="sunny",

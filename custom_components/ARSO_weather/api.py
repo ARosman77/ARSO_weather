@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import xml.etree.ElementTree as ET
+from datetime import datetime
 
 import asyncio
 import socket
@@ -114,7 +115,7 @@ class ARSOMeteoData:
             "domain_lat",
             "domain_lon",
             "domain_altitude",
-            "valid",
+            "valid_UTC",
             "nn_decodeText",
             "wwsyn_decodeText",
             "rr_decodeText",
@@ -229,6 +230,30 @@ class ARSOMeteoData:
         for meteo_data_region in self._meteo_fc_data_all:
             list_of_regions.append(meteo_data_region["domain_shortTitle"])
         return list(set(list_of_regions))  # Using set to remove duplicate entries
+
+    def fc_list_of_dates(self, region) -> list:
+        """Return list of dates in the forecast data."""
+        # meteo_date = datetime.strptime("07.03.2024 12:00 UTC","%d.%m.%Y %H:%M UTC")
+        # print(meteo_date.isoformat()+"Z")
+        decoded_dates = []
+        raw_list_of_dates = self.fc_list_of_meteo_data(region, "valid_UTC")
+        for date in raw_list_of_dates:
+            decoded_dates.append(
+                datetime.strptime(date, "%d.%m.%Y %H:%M UTC").isoformat() + "Z"
+            )
+        return decoded_dates
+
+    def fc_list_of_meteo_data(self, region: str, data_type: str) -> list:
+        """Return list of forcast data for specific region."""
+        meteo_data_region = []
+        regional_fc_data = [
+            item
+            for item in self._meteo_fc_data_all
+            if item["domain_shortTitle"] == region
+        ]
+        for data in regional_fc_data:
+            meteo_data_region.append(data[data_type])
+        return meteo_data_region
 
 
 class ARSOApiClient:
