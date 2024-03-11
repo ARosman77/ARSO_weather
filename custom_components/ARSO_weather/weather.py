@@ -1,6 +1,7 @@
 """Weather platform for ARSO_weather."""
-
 from __future__ import annotations
+
+import dataclasses
 
 from homeassistant.helpers.entity import generate_entity_id
 
@@ -83,11 +84,14 @@ async def async_setup_entry(hass, entry, async_add_devices):
     coordinator = hass.data[DOMAIN][entry.entry_id]
     devices = []
     for entity_description in ENTITY_DESCRIPTIONS:
-        entity_description.name = entry.data[CONF_LOCATION]
+        # entity_description.name = entry.data[CONF_LOCATION]
+        new_entity_description = dataclasses.replace(
+            entity_description, name=entry.data[CONF_LOCATION]
+        )
         devices.append(
             ARSOWeather(
                 coordinator=coordinator,
-                entity_description=entity_description,
+                entity_description=new_entity_description,
                 location=entry.data[CONF_LOCATION],
                 region=entry.data[CONF_REGION],
                 weather_entity_id=generate_entity_id(
