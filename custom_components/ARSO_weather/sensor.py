@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import dataclasses
+
 from homeassistant.components.sensor import (
     SensorEntity,
     SensorEntityDescription,
@@ -46,8 +48,9 @@ async def async_setup_entry(hass, entry, async_add_devices):
     coordinator = hass.data[DOMAIN][entry.entry_id]
     devices = []
     for entity_description in ENTITY_DESCRIPTIONS:
-        entity_description.name = (
-            entry.data[CONF_LOCATION] + " " + str(entity_description.device_class)
+        new_entity_description = dataclasses.replace(
+            entity_description,
+            name=entry.data[CONF_LOCATION] + " " + str(entity_description.device_class),
         )
         if entity_description.device_class == SensorDeviceClass.TEMPERATURE:
             _data_type = "t"
@@ -61,7 +64,7 @@ async def async_setup_entry(hass, entry, async_add_devices):
         devices.append(
             ARSOSensor(
                 coordinator=coordinator,
-                entity_description=entity_description,
+                entity_description=new_entity_description,
                 location=entry.data[CONF_LOCATION],
                 data_type=_data_type,
                 sensor_entity_id=generate_entity_id(
