@@ -10,20 +10,49 @@ from .coordinator import ARSODataUpdateCoordinator
 from .entity import ARSOEntity
 
 from homeassistant.components.weather import (
-    ATTR_FORECAST_TIME,
+    # Weather data
     # ATTR_WEATHER_HUMIDITY,
+    # ATTR_WEATHER_OZONE,
+    # ATTR_WEATHER_DEW_POINT,
     # ATTR_WEATHER_PRESSURE,
-    ATTR_WEATHER_TEMPERATURE,
+    # ATTR_WEATHER_PRESSURE_UNIT,
+    # ATTR_WEATHER_APPARENT_TEMPERATURE,
+    # ATTR_WEATHER_TEMPERATURE,
+    # ATTR_WEATHER_TEMPERATURE_UNIT,
+    # ATTR_WEATHER_VISIBILITY,
+    # ATTR_WEATHER_VISIBILITY_UNIT,
     # ATTR_WEATHER_WIND_BEARING,
+    # ATTR_WEATHER_WIND_GUST_SPEED,
     # ATTR_WEATHER_WIND_SPEED,
-    # ATTR_FORECAST_TIME,
-    # ATTR_FORECAST_TEMP,
-    # ATTR_FORECAST_TEMP_LOW,
+    # ATTR_WEATHER_WIND_SPEED_UNIT,
+    # ATTR_WEATHER_PRECIPITATION_UNIT,
+    # ATTR_WEATHER_CLOUD_COVERAGE,
+    # ATTR_WEATHER_UV_INDEX,
+    # Forecast data
+    # ATTR_FORECAST_IS_DAYTIME,
     ATTR_FORECAST_CONDITION,
-    # ATTR_FORECAST_WIND_SPEED,
-    # ATTR_FORECAST_WIND_BEARING,
+    ATTR_FORECAST_HUMIDITY,
+    # ATTR_FORECAST_NATIVE_PRECIPITATION,
     # ATTR_FORECAST_PRECIPITATION,
-    # PLATFORM_SCHEMA,
+    # ATTR_FORECAST_PRECIPITATION_PROBABILITY,
+    ATTR_FORECAST_NATIVE_PRESSURE,
+    # ATTR_FORECAST_PRESSURE,
+    ATTR_FORECAST_NATIVE_APPARENT_TEMP,
+    # ATTR_FORECAST_APPARENT_TEMP,
+    ATTR_FORECAST_NATIVE_TEMP,
+    # ATTR_FORECAST_TEMP,
+    ATTR_FORECAST_NATIVE_TEMP_LOW,
+    # ATTR_FORECAST_TEMP_LOW,
+    ATTR_FORECAST_TIME,
+    ATTR_FORECAST_WIND_BEARING,
+    ATTR_FORECAST_NATIVE_WIND_GUST_SPEED,
+    # ATTR_FORECAST_WIND_GUST_SPEED,
+    ATTR_FORECAST_NATIVE_WIND_SPEED,
+    # ATTR_FORECAST_WIND_SPEED,
+    ATTR_FORECAST_NATIVE_DEW_POINT,
+    # ATTR_FORECAST_DEW_POINT,
+    # ATTR_FORECAST_CLOUD_COVERAGE,
+    # ATTR_FORECAST_UV_INDEX,
     WeatherEntity,
     WeatherEntityDescription,
     Forecast,
@@ -35,41 +64,6 @@ from homeassistant.const import (
     UnitOfSpeed,
     UnitOfPrecipitationDepth,
 )
-
-WIND_MAPPING = {
-    0: ("-", 0),
-    1: ("N", 10),
-    2: ("NE", 10),
-    3: ("E", 10),
-    4: ("SE", 10),
-    5: ("S", 10),
-    6: ("SW", 10),
-    7: ("W", 10),
-    8: ("NW", 10),
-    9: ("N", 25),
-    10: ("NE", 25),
-    11: ("E", 25),
-    12: ("SE", 25),
-    13: ("S", 25),
-    14: ("SW", 25),
-    15: ("W", 25),
-    16: ("NW", 25),
-    17: ("N", 50),
-    18: ("NE", 50),
-    19: ("E", 50),
-    20: ("SE", 50),
-    21: ("S", 50),
-    22: ("SW", 50),
-    23: ("W", 50),
-    24: ("NW", 50),
-}
-
-WIND_SPEED_MAPPING = {
-    0: 0,
-    1: 10,
-    2: 25,
-    3: 50,
-}
 
 ENTITY_DESCRIPTIONS = (
     WeatherEntityDescription(
@@ -233,19 +227,52 @@ class ARSOWeather(ARSOEntity, WeatherEntity):
     def _get_forecast(self) -> list[Forecast]:
         """Return forecast."""
         _forecasts = []
-        data = {}
-        data[ATTR_WEATHER_TEMPERATURE] = 20
-        data[ATTR_FORECAST_CONDITION] = "sunny"
-        data[ATTR_FORECAST_TIME] = "2024-03-12T12:09:32Z"
-        self.coordinator.data.fc_list_of_dates(self._region)
-        _forecast = Forecast(data)
-        # _forecast = Forecast(
-        #    condition="sunny",
-        #    datetime="12.03.2024 13:00 CET",
-        # )
-        _forecasts.append(_forecast)
-        _forecasts.append(_forecast)
-        _forecasts.append(_forecast)
+        _list_of_meteo_data = []
+        # Putting together all data from API, using dates to create a list of dictionaries
+        for (
+            fc_date,
+            fc_min_temp,
+            fc_max_temp,
+            fc_condition,
+            fc_humidity,
+            fc_pressure,
+            fc_temp,
+            fc_dew_point,
+            fc_wind_speed,
+            fc_wind_gust,
+            fc_wind_bearing,
+        ) in zip(
+            self.coordinator.data.fc_list_of_dates(self._region),
+            self.coordinator.data.fc_list_of_min_temps(self._region),
+            self.coordinator.data.fc_list_of_max_temps(self._region),
+            self.coordinator.data.fc_list_of_condtions(self._region),
+            self.coordinator.data.fc_list_of_humidities(self._region),
+            self.coordinator.data.fc_list_of_presures(self._region),
+            self.coordinator.data.fc_list_of_temps(self._region),
+            self.coordinator.data.fc_list_of_dew_points(self._region),
+            self.coordinator.data.fc_list_of_wind_speeds(self._region),
+            self.coordinator.data.fc_list_of_wind_gusts(self._region),
+            self.coordinator.data.fc_list_of_wind_bearing(self._region),
+        ):
+            _list_of_meteo_data.append(
+                {
+                    ATTR_FORECAST_TIME: fc_date,
+                    ATTR_FORECAST_NATIVE_TEMP_LOW: fc_min_temp,
+                    ATTR_FORECAST_NATIVE_TEMP: fc_max_temp,
+                    ATTR_FORECAST_CONDITION: fc_condition,
+                    ATTR_FORECAST_HUMIDITY: fc_humidity,
+                    ATTR_FORECAST_NATIVE_PRESSURE: fc_pressure,
+                    ATTR_FORECAST_NATIVE_APPARENT_TEMP: fc_temp,
+                    ATTR_FORECAST_NATIVE_DEW_POINT: fc_dew_point,
+                    ATTR_FORECAST_NATIVE_WIND_SPEED: fc_wind_speed,
+                    ATTR_FORECAST_NATIVE_WIND_GUST_SPEED: fc_wind_gust,
+                    ATTR_FORECAST_WIND_BEARING: fc_wind_bearing,
+                }
+            )
+
+        for _forcast in _list_of_meteo_data:
+            _forecasts.append(_forcast)
+
         return _forecasts
 
     # async def async_forecast_hourly(self) -> list[Forecast]:
@@ -257,10 +284,3 @@ class ARSOWeather(ARSOEntity, WeatherEntity):
         """Return daily forecast."""
         LOGGER.debug("_get_forecast: " + str(self._get_forecast()))
         return self._get_forecast()
-        # return None
-
-    # @property
-    # def forecast(self):
-    #    """Return forecast."""
-    #    #return self._get_forecast()
-    #    return None

@@ -115,17 +115,17 @@ class ARSOMeteoData:
             "domain_lat",
             "domain_lon",
             "domain_altitude",
-            "valid_UTC",
-            "nn_decodeText",
-            "wwsyn_decodeText",
-            "rr_decodeText",
-            "td",  # dev point
-            "dd_decodeText",  # wind direction
+            "valid_UTC",  # time and date
+            "nn_icon-wwsyn_icon",  # condition, neeeds to be decoded
+            "td",  # dew point
+            "dd_decodeText",  # wind direction, needs to be decoded?
             "ff_val",  # wind m/s
-            "t",
+            "ffmax_val",  # gusts of wind m/s
+            "t",  # apparent temperature (proboably average?)
             "tnsyn",  # min temp
             "txsyn",  # max temp
-            "msl",
+            "msl",  # air pressure
+            "rh",  # humidity, not present?
         ]
 
         root = ET.fromstring(current_data)
@@ -233,8 +233,6 @@ class ARSOMeteoData:
 
     def fc_list_of_dates(self, region) -> list:
         """Return list of dates in the forecast data."""
-        # meteo_date = datetime.strptime("07.03.2024 12:00 UTC","%d.%m.%Y %H:%M UTC")
-        # print(meteo_date.isoformat()+"Z")
         decoded_dates = []
         raw_list_of_dates = self.fc_list_of_meteo_data(region, "valid_UTC")
         for date in raw_list_of_dates:
@@ -242,6 +240,52 @@ class ARSOMeteoData:
                 datetime.strptime(date, "%d.%m.%Y %H:%M UTC").isoformat() + "Z"
             )
         return decoded_dates
+
+    def fc_list_of_min_temps(self, region) -> list:
+        """Return list of temperatures in the forecast data."""
+        return self.fc_list_of_meteo_data(region, "tnsyn")
+
+    def fc_list_of_max_temps(self, region) -> list:
+        """Return list of temperatures in the forecast data."""
+        return self.fc_list_of_meteo_data(region, "txsyn")
+
+    def fc_list_of_temps(self, region) -> list:
+        """Return list of temperatures (avg/apparent) in the forecast data."""
+        return self.fc_list_of_meteo_data(region, "t")
+
+    def fc_list_of_condtions(self, region) -> list:
+        """Return list of dates in the forecast data."""
+        decoded_conditions = []
+        raw_list_of_conditions = self.fc_list_of_meteo_data(
+            region, "nn_icon-wwsyn_icon"
+        )
+        for condition in raw_list_of_conditions:
+            decoded_conditions.append(self._decode_meteo_condition(condition))
+        return decoded_conditions
+
+    def fc_list_of_humidities(self, region) -> list:
+        """Return list of humidities in the forecast data."""
+        return self.fc_list_of_meteo_data(region, "rh")
+
+    def fc_list_of_presures(self, region) -> list:
+        """Return list of presures in the forecast data."""
+        return self.fc_list_of_meteo_data(region, "msl")
+
+    def fc_list_of_dew_points(self, region) -> list:
+        """Return list of dew points in the forecast data."""
+        return self.fc_list_of_meteo_data(region, "td")
+
+    def fc_list_of_wind_speeds(self, region) -> list:
+        """Return list of wind speeds in the forecast data."""
+        return self.fc_list_of_meteo_data(region, "ff_val")
+
+    def fc_list_of_wind_gusts(self, region) -> list:
+        """Return list of wind gusts in the forecast data."""
+        return self.fc_list_of_meteo_data(region, "ffmax_val")
+
+    def fc_list_of_wind_bearing(self, region) -> list:
+        """Return list of wind bearings in the forecast data."""
+        return self.fc_list_of_meteo_data(region, "dd_decodeText")
 
     def fc_list_of_meteo_data(self, region: str, data_type: str) -> list:
         """Return list of forcast data for specific region."""
