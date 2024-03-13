@@ -148,7 +148,8 @@ class ARSOMeteoData:
 
     def current_humidity(self, location: str) -> float:
         """Return humidity of the location."""
-        return float(self.current_meteo_data(location, "rh"))
+        humidity = self.current_meteo_data(location, "rh")
+        return float(humidity) if humidity else None
 
     def current_air_pressure(self, location: str) -> str:
         """Return air pressure of the location."""
@@ -172,9 +173,9 @@ class ARSOMeteoData:
             phenomena_type = None
             phenomena_strength = None
 
-        LOGGER.debug("cloud_condition=" + str(cloud_condition))
-        LOGGER.debug("phenomena_type=" + str(phenomena_type))
-        LOGGER.debug("phenomena_strength=" + str(phenomena_strength))
+        LOGGER.debug("cloud_condition=%s", str(cloud_condition))
+        LOGGER.debug("phenomena_type=%s", str(phenomena_type))
+        LOGGER.debug("phenomena_strength=%s", str(phenomena_strength))
 
         # complicated decoding done here:
         if phenomena_type is None:
@@ -211,11 +212,14 @@ class ARSOMeteoData:
     def current_meteo_data(self, location: str, data_type: str) -> str:
         """Return temperature of the location."""
         meteo_data_location = next(
-            item
-            for item in self._meteo_data_all
-            if item["domain_longTitle"] == location
+            (
+                item
+                for item in self._meteo_data_all
+                if item["domain_longTitle"] == location
+            ),
+            None,
         )
-        return meteo_data_location[data_type]
+        return None if meteo_data_location is None else meteo_data_location[data_type]
 
     def list_of_locations(self) -> list:
         """Return list of possible locations."""

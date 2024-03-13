@@ -1,13 +1,10 @@
 """Weather platform for ARSO_weather."""
+
 from __future__ import annotations
 
 import dataclasses
 
 from homeassistant.helpers.entity import generate_entity_id
-
-from .const import DOMAIN, CONF_LOCATION, CONF_REGION, ATTRIBUTION, LOGGER
-from .coordinator import ARSODataUpdateCoordinator
-from .entity import ARSOEntity
 
 from homeassistant.components.weather import (
     # Weather data
@@ -64,6 +61,10 @@ from homeassistant.const import (
     UnitOfSpeed,
     UnitOfPrecipitationDepth,
 )
+
+from .const import DOMAIN, CONF_LOCATION, CONF_REGION, ATTRIBUTION, LOGGER
+from .coordinator import ARSODataUpdateCoordinator
+from .entity import ARSOEntity
 
 ENTITY_DESCRIPTIONS = (
     WeatherEntityDescription(
@@ -133,8 +134,13 @@ class ARSOWeather(ARSOEntity, WeatherEntity):
         # return None
         return WeatherEntityFeature.FORECAST_DAILY
 
+    # @property
+    # def state(self):
+    #    """Return the condition at specified location."""
+    #    return self.coordinator.data.current_condition(self._location)
+
     @property
-    def state(self):
+    def condition(self):
         """Return the condition at specified location."""
         return self.coordinator.data.current_condition(self._location)
 
@@ -154,8 +160,8 @@ class ARSOWeather(ARSOEntity, WeatherEntity):
     def native_temperature(self):
         """Return the platform temperature."""
         LOGGER.debug(
-            "native_temperature:"
-            + self.coordinator.data.current_temperature(self._location)
+            "native_temperature: %s",
+            str(self.coordinator.data.current_temperature(self._location)),
         )
         return self.coordinator.data.current_temperature(self._location)
 
@@ -168,8 +174,8 @@ class ARSOWeather(ARSOEntity, WeatherEntity):
     def native_pressure(self):
         """Return platform air pressure."""
         LOGGER.debug(
-            "native_pressure:"
-            + self.coordinator.data.current_air_pressure(self._location)
+            "native_pressure: %s",
+            str(self.coordinator.data.current_air_pressure(self._location)),
         )
         return self.coordinator.data.current_air_pressure(self._location)
 
@@ -183,8 +189,8 @@ class ARSOWeather(ARSOEntity, WeatherEntity):
     def humidity(self):
         """Return the humidity."""
         LOGGER.debug(
-            "native_humidity:"
-            + str(self.coordinator.data.current_humidity(self._location))
+            "native_humidity: %s",
+            str(self.coordinator.data.current_humidity(self._location)),
         )
         return self.coordinator.data.current_humidity(self._location)
 
@@ -204,8 +210,8 @@ class ARSOWeather(ARSOEntity, WeatherEntity):
     def native_wind_speed(self):
         """Return the wind speed."""
         LOGGER.debug(
-            "native_wind_speed: "
-            + str(self.coordinator.data.current_wind_speed(self._location))
+            "native_wind_speed: %s",
+            str(self.coordinator.data.current_wind_speed(self._location)),
         )
         return self.coordinator.data.current_wind_speed(self._location)
 
@@ -219,8 +225,8 @@ class ARSOWeather(ARSOEntity, WeatherEntity):
     def wind_bearing(self):
         """Return the wind bearing."""
         LOGGER.debug(
-            "wind_bearing: "
-            + str(self.coordinator.data.current_wind_direction(self._location))
+            "wind_bearing: %s",
+            str(self.coordinator.data.current_wind_direction(self._location)),
         )
         return self.coordinator.data.current_wind_direction(self._location)
 
@@ -275,12 +281,15 @@ class ARSOWeather(ARSOEntity, WeatherEntity):
 
         return _forecasts
 
-    # async def async_forecast_hourly(self) -> list[Forecast]:
-    #    """Return hourly forecast."""
-    #    #return self._get_forecast()
-    #    return None
+    async def async_forecast_hourly(self) -> list[Forecast]:
+        """Return hourly forecast."""
+        # return self._get_forecast()
+
+    async def async_forecast_twice_daily(self) -> list[Forecast]:
+        """Return twice_daily forecast."""
+        # return self._get_forecast()
 
     async def async_forecast_daily(self) -> list[Forecast]:
         """Return daily forecast."""
-        LOGGER.debug("_get_forecast: " + str(self._get_forecast()))
+        LOGGER.debug("_get_forecast: %s", str(self._get_forecast()))
         return self._get_forecast()
