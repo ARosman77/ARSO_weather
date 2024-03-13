@@ -18,7 +18,11 @@
                 "github.vscode-pull-request-github",
                 "ryanluker.vscode-coverage-gutters",
                 "ms-python.vscode-pylance",
-                "charliermarsh.ruff"
+                "charliermarsh.ruff",
+                "ms-python.pylint",
+                "VisualStudioExptTeam.vscodeintellicode",
+                "redhat.vscode-yaml",
+                "esbenp.prettier-vscode"
             ],
             "settings": {
                 "files.eol": "\n",
@@ -30,7 +34,18 @@
                 "editor.formatOnPaste": false,
                 "editor.formatOnSave": true,
                 "editor.formatOnType": true,
-                "files.trimTrailingWhitespace": true
+                "files.trimTrailingWhitespace": true,
+                "yaml.customTags": [
+                    "!input scalar",
+                    "!secret scalar",
+                    "!include_dir_named scalar",
+                    "!include_dir_list scalar",
+                    "!include_dir_merge_list scalar",
+                    "!include_dir_merge_named scalar"
+                  ],
+                "[python]": {
+                    "editor.defaultFormatter": "charliermarsh.ruff"
+                  }
             }
         }
     },
