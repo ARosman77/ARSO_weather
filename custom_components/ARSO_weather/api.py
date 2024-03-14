@@ -108,6 +108,8 @@ class ARSOMeteoData:
             "nn_icon-wwsyn_icon",
             "dd_val",
             "ff_val",
+            "tp_12h_acc",
+            "vis_val",
         ]
 
         data_fc_selection = [
@@ -157,7 +159,8 @@ class ARSOMeteoData:
 
     def _decode_meteo_condition(self, description: str) -> str:
         """Decode meteo condition to home assistant condition."""
-
+        if description is None:
+            return None
         list_of_conditions = description.split("_")
         cloud_condition = list_of_conditions[0] if len(list_of_conditions) > 0 else None
         phenomena_condition = (
@@ -173,41 +176,57 @@ class ARSOMeteoData:
             phenomena_type = None
             phenomena_strength = None
 
-        LOGGER.debug("cloud_condition=%s", str(cloud_condition))
-        LOGGER.debug("phenomena_type=%s", str(phenomena_type))
-        LOGGER.debug("phenomena_strength=%s", str(phenomena_strength))
+        LOGGER.debug("API.py > _decode_meteo_condition()")
+        LOGGER.debug(
+            "--> cloud=%s / type=%s / strength=%s",
+            str(cloud_condition),
+            str(phenomena_type),
+            str(phenomena_strength),
+        )
 
         # complicated decoding done here:
         if phenomena_type is None:
             return CLOUD_CONDITION_MAPPING[cloud_condition]
         # ‘pouring’ = heavyRA
-        elif (phenomena_type == "RA") and (phenomena_strength == "heavy"):
+        if (phenomena_type == "RA") and (phenomena_strength == "heavy"):
             return "pouring"
-        else:
-            return PHENOMENA_CONDITION_MAPPING[phenomena_type]
+        return PHENOMENA_CONDITION_MAPPING[phenomena_type]
 
     def current_condition(self, location: str) -> str:
         """Return current condition of the location."""
+        LOGGER.debug("API.py > current_condition()")
         LOGGER.debug(
-            "<nn_icon-wwsyn_icon> = "
-            + self.current_meteo_data(location, "nn_icon-wwsyn_icon")
-            + " => condition = "
-            + self._decode_meteo_condition(
-                self.current_meteo_data(location, "nn_icon-wwsyn_icon")
-            )
+            "--> decoding '%s' to condition '%s' ",
+            str(self.current_meteo_data(location, "nn_icon-wwsyn_icon")),
+            str(
+                self._decode_meteo_condition(
+                    self.current_meteo_data(location, "nn_icon-wwsyn_icon")
+                )
+            ),
         )
-
         return self._decode_meteo_condition(
             self.current_meteo_data(location, "nn_icon-wwsyn_icon")
         )
 
     def current_wind_direction(self, location: str) -> float:
         """Return current wind direction."""
-        return float(self.current_meteo_data(location, "dd_val"))
+        wind_dir = self.current_meteo_data(location, "dd_val")
+        return float(wind_dir) if wind_dir else None
 
     def current_wind_speed(self, location: str) -> float:
         """Return current wind speed."""
-        return float(self.current_meteo_data(location, "ff_val"))
+        wind_speed = self.current_meteo_data(location, "ff_val")
+        return float(wind_speed) if wind_speed else None
+
+    def current_precipitation(self, location: str) -> float:
+        """Return current precipitation."""
+        precipitation = self.current_meteo_data(location, "tp_12h_acc")
+        return float(precipitation) if precipitation else None
+
+    def current_visibility(self, location: str) -> float:
+        """Return current visibility."""
+        visibility = self.current_meteo_data(location, "vis_val")
+        return float(visibility) if visibility else None
 
     def current_meteo_data(self, location: str, data_type: str) -> str:
         """Return temperature of the location."""
