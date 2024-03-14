@@ -102,6 +102,11 @@ class ARSOSensor(ARSOEntity, SensorEntity):
     def native_value(self) -> str:
         """Return the native value of the sensor."""
         LOGGER.debug(
-            self.coordinator.data.current_meteo_data(self._location, self._data_type)
+            "sensor.py > native_value() = %s ",
+            str(
+                self.coordinator.data.current_meteo_data(
+                    self._location, self._data_type
+                )
+            ),
         )
         return self.coordinator.data.current_meteo_data(self._location, self._data_type)

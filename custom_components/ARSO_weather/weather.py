@@ -1,13 +1,10 @@
 """Weather platform for ARSO_weather."""
+
 from __future__ import annotations
 
 import dataclasses
 
 from homeassistant.helpers.entity import generate_entity_id
-
-from .const import DOMAIN, CONF_LOCATION, CONF_REGION, ATTRIBUTION, LOGGER
-from .coordinator import ARSODataUpdateCoordinator
-from .entity import ARSOEntity
 
 from homeassistant.components.weather import (
     # Weather data
@@ -63,7 +60,12 @@ from homeassistant.const import (
     UnitOfPressure,
     UnitOfSpeed,
     UnitOfPrecipitationDepth,
+    UnitOfLength,
 )
+
+from .const import DOMAIN, CONF_LOCATION, CONF_REGION, ATTRIBUTION, LOGGER
+from .coordinator import ARSODataUpdateCoordinator
+from .entity import ARSOEntity
 
 ENTITY_DESCRIPTIONS = (
     WeatherEntityDescription(
@@ -112,7 +114,6 @@ class ARSOWeather(ARSOEntity, WeatherEntity):
         unique_id: str | None = None,
     ):
         """Initialise the platform with a data instance and station name."""
-        LOGGER.debug("Initialized.")
         super().__init__(coordinator)
         self.entity_id = weather_entity_id
 
@@ -126,36 +127,23 @@ class ARSOWeather(ARSOEntity, WeatherEntity):
     @property
     def supported_features(self) -> WeatherEntityFeature:
         """Return supported features."""
-        LOGGER.debug("supported_features")
-        # return (
-        #    WeatherEntityFeature.FORECAST_HOURLY | WeatherEntityFeature.FORECAST_DAILY
-        # )
-        # return None
+        # Possible features:
+        # WeatherEntityFeature.FORECAST_HOURLY
+        # WeatherEntityFeature.FORECAST_DAILY
+        # WeatherEntityFeature.FORECAST_TWICE_DAILY
         return WeatherEntityFeature.FORECAST_DAILY
 
     @property
-    def state(self):
+    def condition(self):
         """Return the condition at specified location."""
         return self.coordinator.data.current_condition(self._location)
-
-    # @property
-    # def entity_picture(self):
-    #    """Weather symbol if type is condition."""
-    #    LOGGER.debug("entity_picture")
-    #    return None
-
-    # @property
-    # def extra_state_attributes(self):
-    #    """Return the state attributes."""
-    #    LOGGER.debug("extra_state_attributes")
-    #    return "attr"
 
     @property
     def native_temperature(self):
         """Return the platform temperature."""
         LOGGER.debug(
-            "native_temperature:"
-            + self.coordinator.data.current_temperature(self._location)
+            "weather.py > native_temperature = %s °C",
+            str(self.coordinator.data.current_temperature(self._location)),
         )
         return self.coordinator.data.current_temperature(self._location)
 
@@ -168,61 +156,96 @@ class ARSOWeather(ARSOEntity, WeatherEntity):
     def native_pressure(self):
         """Return platform air pressure."""
         LOGGER.debug(
-            "native_pressure:"
-            + self.coordinator.data.current_air_pressure(self._location)
+            "weather.py > native_pressure = %s hPa",
+            str(self.coordinator.data.current_air_pressure(self._location)),
         )
         return self.coordinator.data.current_air_pressure(self._location)
 
     @property
     def native_pressure_unit(self):
         """Return the unit of measurement."""
-        LOGGER.debug("native_pressure_unit")
         return UnitOfPressure.HPA
 
     @property
     def humidity(self):
         """Return the humidity."""
         LOGGER.debug(
-            "native_humidity:"
-            + str(self.coordinator.data.current_humidity(self._location))
+            "weather.py > native_humidity: %s",
+            str(self.coordinator.data.current_humidity(self._location)),
         )
         return self.coordinator.data.current_humidity(self._location)
 
+    # seems to not be supported
     @property
     def native_precipitation(self):
         """Return the precipitation."""
-        LOGGER.debug("native_precipitation")
-        return 10.0
+        LOGGER.debug(
+            "weather.py > native_precipitation: %s mm",
+            str(self.coordinator.data.current_precipitation(self._location)),
+        )
+        return self.coordinator.data.current_precipitation(self._location)
 
     @property
     def native_precipitation_unit(self):
         """Return the precipitation unit."""
-        LOGGER.debug("native_precipitation_unit")
         return UnitOfPrecipitationDepth.MILLIMETERS
 
     @property
     def native_wind_speed(self):
         """Return the wind speed."""
         LOGGER.debug(
-            "native_wind_speed: "
-            + str(self.coordinator.data.current_wind_speed(self._location))
+            "weather.py > native_wind_speed: %s m/s",
+            str(self.coordinator.data.current_wind_speed(self._location)),
         )
         return self.coordinator.data.current_wind_speed(self._location)
 
     @property
     def native_wind_speed_unit(self):
         """Return the unit of measurement."""
-        LOGGER.debug("native_wind_speed_unit")
         return UnitOfSpeed.METERS_PER_SECOND
 
     @property
     def wind_bearing(self):
         """Return the wind bearing."""
         LOGGER.debug(
-            "wind_bearing: "
-            + str(self.coordinator.data.current_wind_direction(self._location))
+            "weather.py > wind_bearing: %s°",
+            str(self.coordinator.data.current_wind_direction(self._location)),
         )
         return self.coordinator.data.current_wind_direction(self._location)
+
+    @property
+    def native_visibility(self):
+        """Return visibility."""
+        LOGGER.debug(
+            "weather.py > visibility: %s km",
+            str(self.coordinator.data.current_visibility(self._location)),
+        )
+        return self.coordinator.data.current_visibility(self._location)
+
+    @property
+    def native_visibility_unit(self):
+        """Return the visibility unit."""
+        return UnitOfLength.KILOMETERS
+
+    # @property
+    # def extra_state_attributes(self):
+    #    """Return the state attributes."""
+    #    LOGGER.debug("extra_state_attributes")
+    #    return "attr"
+
+    # Supported by HA but not implemented properties as ARSO doesn't provide data
+    # @property
+    # def native_apparent_temperature(self) -> float | None:
+    # @property
+    # def native_dew_point(self) -> float | None:
+    # @property
+    # def native_wind_gust_speed(self) -> float | None:
+    # @property
+    # def ozone(self) -> float | None:
+    # @property
+    # def cloud_coverage(self) -> float | None:
+    # @property
+    # def uv_index(self) -> float | None:
 
     def _get_forecast(self) -> list[Forecast]:
         """Return forecast."""
@@ -275,12 +298,16 @@ class ARSOWeather(ARSOEntity, WeatherEntity):
 
         return _forecasts
 
-    # async def async_forecast_hourly(self) -> list[Forecast]:
-    #    """Return hourly forecast."""
-    #    #return self._get_forecast()
-    #    return None
+    async def async_forecast_hourly(self) -> list[Forecast]:
+        """Return hourly forecast."""
+        # return self._get_forecast()
+
+    async def async_forecast_twice_daily(self) -> list[Forecast]:
+        """Return twice_daily forecast."""
+        # return self._get_forecast()
 
     async def async_forecast_daily(self) -> list[Forecast]:
         """Return daily forecast."""
-        LOGGER.debug("_get_forecast: " + str(self._get_forecast()))
+        # LOGGER.debug("weather.py > async_forecast_daily(): %s", str(self._get_forecast()))
+        LOGGER.debug("weather.py > async_forecast_daily()")
         return self._get_forecast()

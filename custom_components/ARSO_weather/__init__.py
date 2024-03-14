@@ -1,8 +1,10 @@
+# pylint: disable=invalid-name
 """Custom integration to integrate ARSO_weather with Home Assistant.
 
 For more details about this integration, please refer to
 https://github.com/ARosman77/ARSO_weather
 """
+
 from __future__ import annotations
 
 from homeassistant.config_entries import ConfigEntry
