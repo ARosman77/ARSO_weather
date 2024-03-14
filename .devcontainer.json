@@ -51,6 +51,10 @@
     },
     "remoteUser": "vscode",
     "features": {
-        "ghcr.io/devcontainers/features/rust:1": {}
+        "ghcr.io/devcontainers/features/rust:1": {
+            "version": "latest",
+            "profile": "minimal"
+        },
+        "ghcr.io/devcontainers-contrib/features/ffmpeg-apt-get:1": {}
     }
 }
