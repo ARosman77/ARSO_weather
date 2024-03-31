@@ -35,7 +35,7 @@ ENTITY_DESCRIPTIONS = (
     ),
     SensorEntityDescription(
         key="ARSO_weather_msl",
-        icon="mdi:thermometer-lines",
+        icon="mdi:gauge",
         device_class=SensorDeviceClass.ATMOSPHERIC_PRESSURE,
         native_unit_of_measurement=UnitOfPressure.HPA,
         state_class=SensorStateClass.MEASUREMENT,
