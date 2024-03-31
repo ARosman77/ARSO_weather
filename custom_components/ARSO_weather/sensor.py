@@ -14,6 +14,7 @@ from homeassistant.const import (
     UnitOfTemperature,
     UnitOfPressure,
     UnitOfSpeed,
+    UnitOfPrecipitationDepth,
     PERCENTAGE,
 )
 from homeassistant.helpers.entity import generate_entity_id
@@ -52,6 +53,13 @@ ENTITY_DESCRIPTIONS = (
         native_unit_of_measurement=UnitOfSpeed.METERS_PER_SECOND,
         state_class=SensorStateClass.MEASUREMENT,
     ),
+    SensorEntityDescription(
+        key="ARSO_weather_rain",
+        icon="mdi:water",
+        device_class=SensorDeviceClass.PRECIPITATION,
+        native_unit_of_measurement=UnitOfPrecipitationDepth.MILLIMETERS,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
 )
 
 
@@ -72,6 +80,8 @@ async def async_setup_entry(hass, entry, async_add_devices):
             _data_type = "msl"
         elif entity_description.device_class == SensorDeviceClass.WIND_SPEED:
             _data_type = "ff_val"
+        elif entity_description.device_class == SensorDeviceClass.PRECIPITATION:
+            _data_type = "tp_12h_acc"
         else:
             _data_type = ""
 
