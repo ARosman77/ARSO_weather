@@ -10,7 +10,12 @@ from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorStateClass,
 )
-from homeassistant.const import UnitOfTemperature, UnitOfPressure, PERCENTAGE
+from homeassistant.const import (
+    UnitOfTemperature,
+    UnitOfPressure,
+    UnitOfSpeed,
+    PERCENTAGE,
+)
 from homeassistant.helpers.entity import generate_entity_id
 
 
@@ -40,6 +45,13 @@ ENTITY_DESCRIPTIONS = (
         native_unit_of_measurement=UnitOfPressure.HPA,
         state_class=SensorStateClass.MEASUREMENT,
     ),
+    SensorEntityDescription(
+        key="ARSO_weather_wind",
+        icon="mdi:weather-windy",
+        device_class=SensorDeviceClass.WIND_SPEED,
+        native_unit_of_measurement=UnitOfSpeed.METERS_PER_SECOND,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
 )
 
 
@@ -58,6 +70,8 @@ async def async_setup_entry(hass, entry, async_add_devices):
             _data_type = "rh"
         elif entity_description.device_class == SensorDeviceClass.ATMOSPHERIC_PRESSURE:
             _data_type = "msl"
+        elif entity_description.device_class == SensorDeviceClass.WIND_SPEED:
+            _data_type = "ff_val"
         else:
             _data_type = ""
 
